@@ -1,0 +1,5 @@
+.superpowers/
+.DS_Store
+.private-denylist
+qa.env
+.env*.local
