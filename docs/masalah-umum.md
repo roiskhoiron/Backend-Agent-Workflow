@@ -16,6 +16,9 @@
 | `migration-lint.sh` menandai migrasi yang sebenarnya aman | Pencocokan berbasis pola bisa keliru. Agen tetap bertanya; kamu yang memutuskan, keputusan dicatat di PR/MR |
 | `install.sh` menolak: sudah terhubung ke repo lain | Workflow Mobile terpasang di mesin ini. Pilih satu, atau `./install.sh --force` |
 | Linux vs macOS | Skrip memakai `stat -c` lalu `stat -f` (keduanya didukung). Butuh `bash` 4+ (macOS: `brew install bash`) |
+| `openapi-check.sh` bilang Swagger 2.0 | Generator project masih versi lama. Perbarui ke generator OpenAPI 3 (mis. `springdoc`, `drf-spectacular`, `swag` v2); sementara bisa konversi dengan `swagger2openapi` |
+| `openapi-check.sh diff` ada `hilang-di-kode` / `response-field-hilang` | Kode atau anotasinya belum memenuhi contract: perbaiki kode/anotasi, jangan ubah contract. `tidak-di-contract` di luar tiket = drift lama, catat saja |
+| `openapi-check.sh` minta PyYAML | Ekspor spec sebagai JSON, atau `pip install pyyaml`, atau pasang `yq` |
 | TC **Tertahan** | Tidak bisa diuji (alat tidak ada, butuh data live, spec tidak ada); alasannya tertulis di laporan |
 
 ---

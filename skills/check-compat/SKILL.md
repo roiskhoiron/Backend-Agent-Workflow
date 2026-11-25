@@ -7,7 +7,7 @@ Aplikasi mobile versi lama tidak bisa dipaksa memperbarui diri: endpoint yang di
 
 ## Langkah
 1. **Spec:** bandingkan spec di base dengan spec di branch tiket.
-   - OpenAPI: `oasdiff breaking <(git show <base>:<spec>) <spec>` (tanpa oasdiff → diff manual: path/method dihapus, field response dihapus/diganti tipe, field request baru yang wajib, enum menyempit, kode status berubah, auth berubah).
+   - OpenAPI: bangkitkan **spec dari kode** di base (worktree/ref base) dan di branch tiket dengan perintah ekspor spec, lalu `oasdiff breaking <spec base> <spec tiket>`; spec yang di-commit di repo juga boleh dibandingkan, tetapi spec dari kode lebih jujur (anotasi mengikuti kode) (tanpa oasdiff → diff manual: path/method dihapus, field response dihapus/diganti tipe, field request baru yang wajib, enum menyempit, kode status berubah, auth berubah).
    - Spec di repo katalog contract (workflow produksi tiket): bandingkan versi contract yang dipakai tiket dengan versi yang sedang dipakai klien.
 2. **Perilaku tanpa perubahan spec:** baca diff kode endpoint yang disentuh: default berubah, validasi diperketat, urutan/pagination berubah, error code berubah, field jadi `null`. Ini sering lolos dari diff spec.
 3. **Data:** migrasi tiket (`migration-lint.sh`) yang mengganti nama/menghapus kolom yang masih dibaca endpoint lama → memutus.

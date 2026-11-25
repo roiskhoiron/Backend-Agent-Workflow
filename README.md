@@ -9,7 +9,7 @@ Bayangkan sebuah tim kecil: ada **mandor** (SPV) yang membagi tugas, **programme
 
 ## Daftar isi
 1. [Apa bedanya dengan workflow Mobile?](#apa-bedanya-dengan-workflow-mobile)
-2. [Yang perlu disiapkan](#yang-perlu-disiapkan)
+2. [Yang perlu disiapkan](#yang-perlu-disiapkan) dan [syarat stack](#syarat-stack-spec-openapi-dari-kode)
 3. [Pasang (5 menit)](#pasang-5-menit)
 4. [Setup pertama per project](#setup-pertama-per-project)
 5. [Lima perintah](#lima-perintah)
@@ -37,6 +37,7 @@ Bayangkan sebuah tim kecil: ada **mandor** (SPV) yang membagi tugas, **programme
 | [Claude Code](https://code.claude.com) + Orca (sama dengan workflow Mobile) | menjalankan tim agen |
 | `git`, `jq`, `python3`, `bash` | skrip dan pagar keamanan |
 | Docker | database uji sekali pakai per tiket |
+| **Stack Backend yang bisa mengekspor spec OpenAPI 3.x dari kode** | syarat wajib, lihat [Syarat stack](#syarat-stack-spec-openapi-dari-kode) |
 | `gh` (GitHub) atau `glab` (GitLab), sudah login | PR/MR |
 | Konektor **Atlassian** (Jira) di Claude | membaca, mengomentari, dan menggeser tiket |
 
@@ -46,6 +47,19 @@ Bayangkan sebuah tim kecil: ada **mandor** (SPV) yang membagi tugas, **programme
 | Konektor **Claude Docs** | bila laporan ingin di Claude Docs, bukan di repo |
 
 Alat yang belum terpasang tidak membuat workflow gagal: test case terkait ditandai **Tertahan** dan agen memberi tahu.
+
+## Syarat stack: spec OpenAPI dari kode
+
+Bahasa dan framework bebas, asal project bisa **membangkitkan spec OpenAPI 3.0/3.1 dari kode** (anotasi Swagger atau generator bawaan framework) dengan satu perintah. Contoh: `@nestjs/swagger`, `springdoc-openapi`, FastAPI (bawaan), `drf-spectacular`, `swaggo/swag` v2, `dedoc/scramble`, `Swashbuckle`.
+
+Kenapa wajib? Contract API ditulis lebih dulu (dari workflow pembuat tiket). Spec yang dibangkitkan dari kode adalah **bukti** bahwa kode benar-benar memenuhi contract itu, dan dicek otomatis:
+
+```bash
+bin/openapi-check.sh validate spec-kode.json                     # standar OpenAPI 3.x? (Swagger 2.0 ditolak)
+bin/openapi-check.sh diff contract.yaml spec-kode.json --paths '^/orders'   # kode sesuai contract?
+```
+
+Ada beda → kode diperbaiki, bukan contract.
 
 ## Pasang (5 menit)
 
@@ -72,7 +86,7 @@ Cukup sekali. Sebagian besar ditanyakan agen sendiri saat pertama dipakai.
    ```
 2. **Akun uji**: salin `templates/qa.env.example` ke root project sebagai `qa.env`, tambahkan `qa.env` ke `.gitignore` **lebih dulu**, lalu isi nilainya.
 3. **Status Jira**: saat pertama menggeser tiket, agen menampilkan daftar status dan meminta kamu memilih id untuk Todo, In Progress, dan Ready To Review (Done tidak pernah).
-4. **Memory project**: agen bertanya sekali lalu mengingat: branch produksi/integrasi, URL server dev/beta/live, perintah tes/migrasi/deploy, engine database, lokasi spec OpenAPI, klien yang memakai API, dan siapa yang menjalankan migrasi production. Jawabannya juga diberikan sebagai blok `## Catatan agen` untuk kamu commit ke `CLAUDE.md` project.
+4. **Memory project**: agen bertanya sekali lalu mengingat: branch produksi/integrasi, URL server dev/beta/live, perintah tes/migrasi/deploy/**ekspor spec OpenAPI**, engine database, lokasi spec OpenAPI, klien yang memakai API, dan siapa yang menjalankan migrasi production. Jawabannya juga diberikan sebagai blok `## Catatan agen` untuk kamu commit ke `CLAUDE.md` project.
 
 ## Lima perintah
 
@@ -172,7 +186,7 @@ Catatan jujur: pagar hanya membaca **teks perintah**. Alamat production yang ter
 | `skills/<perintah>/SKILL.md` | Langkah tiap perintah (5) dan skill internal Backend (7) |
 | `skills/_shared/` | Aturan bersama: `rules.md`, `environments.md`, `credentials.md`, `deploy-release.md`, `report-format.md` |
 | `agents/` | Peran agen (model, tugas, larangan) |
-| `bin/` | Skrip pembantu: `lock.sh`, `env-slot.sh`, `test-db.sh`, `migration-lint.sh`, `migration-check.sh`, `http-evidence.sh`, `docs-publish.sh`, `release-trace.sh`, `manifest-check.sh`, `audit-mode.sh`, `housekeeping.sh` |
+| `bin/` | Skrip pembantu: `lock.sh`, `env-slot.sh`, `test-db.sh`, `migration-lint.sh`, `migration-check.sh`, `http-evidence.sh`, `openapi-check.sh`, `docs-publish.sh`, `release-trace.sh`, `manifest-check.sh`, `audit-mode.sh`, `housekeeping.sh` |
 | `hooks/guard.sh` | Pagar keamanan |
 | `templates/` | `qa.env.example` (akun uji), bagian `CLAUDE.md` global |
 | `tests/` | Tes otomatis: `bash tests/run.sh` |

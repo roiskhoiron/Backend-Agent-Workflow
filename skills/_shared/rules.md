@@ -14,7 +14,7 @@ Berlaku untuk semua agen dan skill (`/validate-tiket`, `/develop-tiket`, `/rilis
   |---|---|---|
   | Branch project | `<primary>` (produksi/live), `<protected>` (integrasi), remote fork/utama, strategi merge PR tiket (squash / merge commit) | `git remote -v`, `git ls-remote --symref upstream HEAD`, `git branch -r` |
   | Server per env | base URL API dev/beta/live, cara melihat versi yang ter-deploy (mis. `GET /version`, tag image) | konfigurasi deploy, `.env.example` |
-  | Perintah project | tes unit, tes integrasi, migrasi naik, migrasi turun (hanya migrasi tiket), dump skema, jalankan layanan lokal, deploy per env | `package.json`, `Makefile`, `pyproject.toml`, `build.gradle`, CI |
+  | Perintah project | tes unit, tes integrasi, migrasi naik, migrasi turun (hanya migrasi tiket), dump skema, **ekspor spec OpenAPI dari kode**, jalankan layanan lokal, deploy per env | `package.json`, `Makefile`, `pyproject.toml`, `build.gradle`, CI |
   | Database uji | engine + image (`postgres`/`mysql`/`mariadb`/`mongo`), folder migrasi | `docker-compose*.yml`, konfigurasi ORM |
   | Contract | lokasi spec OpenAPI (repo ini atau repo katalog contract dari workflow produksi tiket), lokasi kontrak Pact (folder atau broker) | `openapi*.yaml`, `contracts/`, `pacts/` |
   | Klien | aplikasi yang memakai API ini (Mobile, Frontend web), versi klien tertua yang masih didukung, cara melihat versi klien yang memanggil (header/log) | tiket, dokumen produk |
@@ -46,6 +46,24 @@ Berlaku untuk semua agen dan skill (`/validate-tiket`, `/develop-tiket`, `/rilis
 Product Designer dari workflow Mobile **tidak dipanggil** (tidak ada mockup); di mode tim Contract Runner dan HoE menjadi pemeriksa utama.
 
 Management (SPV, Planner, Validator, Reviewer, Release) memutuskan dan berbicara ke luar: Jira, dokumentasi, git remote, deploy. Development (Coder, QA) hanya kode, database uji, dan server dev; satu-satunya akses remote Coder = push branch tiketnya sendiri ke `origin`. Planner hanya penasihat SPV. Tim validasi (PdM, Contract Runner, HoE, Spesialis eskalasi, PjM) hanya-baca dan melapor ke Validator. Housekeeping = skrip shell, tanpa agen. Model diubah di `~/.claude/agents/<peran>.md`.
+
+## Syarat stack: spec OpenAPI dari kode
+Stack Backend bebas (bahasa, framework, database), tetapi **wajib bisa membangkitkan spec OpenAPI 3.0/3.1 standar dari kode** (anotasi Swagger atau generator bawaan framework), dengan satu perintah yang tercatat di memory project → Perintah project.
+
+| Stack (contoh) | Generator |
+|---|---|
+| Node/Express | `swagger-jsdoc` + `swagger-ui-express` |
+| NestJS | `@nestjs/swagger` (`SwaggerModule.createDocument`) |
+| Java/Kotlin Spring | `springdoc-openapi` (`/v3/api-docs`, plugin Maven/Gradle) |
+| Python FastAPI | bawaan (`app.openapi()` / `/openapi.json`) |
+| Python Django REST | `drf-spectacular` (`manage.py spectacular`) |
+| Go | `swaggo/swag` v2 atau `ogen`/`oapi-codegen` (contract-first) |
+| PHP Laravel | `dedoc/scramble` atau `l5-swagger` |
+| .NET | `Swashbuckle`/`Microsoft.AspNetCore.OpenApi` |
+
+- Hasilnya diperiksa `openapi-check.sh validate <spec>`: harus OpenAPI 3.x valid. **Swagger 2.0 tidak diterima**: perbarui generator ke OpenAPI 3, atau konversi (`swagger2openapi`) sebagai jalan sementara.
+- **Contract tetap sumber kebenaran.** Contract (dari workflow produksi tiket) ditulis lebih dulu; spec dari kode adalah bukti bahwa kode memenuhinya: `openapi-check.sh diff <contract> <spec kode> --paths <endpoint tiket>` harus bersih sebelum review dan sebelum PR siap. Beda → kode diperbaiki, bukan contract.
+- Project belum bisa membangkitkan spec → `/validate-tiket` dan `/develop-tiket` berhenti dan tanya, dengan saran generator untuk stack project itu. Menambahkan generator = tiket chore tersendiri.
 
 ## Mode kerja
 - **Diawasi**: sesi biasa, user menyetujui izin.

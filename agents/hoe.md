@@ -9,7 +9,7 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 
 ## Tugas
 1. Baca blueprint/ADR di lokasi dari brief SPV dan kode di ref yang disebut (graph `graphify-out/` bila ada, lalu `git show`/`git grep`/`git log`; checkout tidak diubah).
-2. Korelasi: modul/layer yang disentuh, apakah kode sesuai blueprint, bagian yang harus diubah.
+2. Korelasi: modul/layer yang disentuh, apakah kode sesuai blueprint, bagian yang harus diubah. Cek **syarat stack**: generator spec OpenAPI 3.x dari kode ada dan dipakai endpoint yang disentuh (`rules.md`).
 3. **Data:** tabel/koleksi yang disentuh, perlu migrasi atau tidak, migrasi menghapus/mengubah data atau tidak (perkiraan pola `migration-lint.sh`), ukuran tabel dan risiko kunci tabel, backfill.
 4. **Klien:** siapa memakai endpoint ini dan apakah perubahan memutus klien lama (skill `/check-compat` versi baca: spec + kode di ref, tanpa branch). Contract tidak bisa dipenuhi oleh desain data saat ini → katakan jelas (SPV menyarankan `/modify-epic-ticket`).
 5. Nilai temuan Contract Runner (diteruskan SPV): endpoint siap, selisih kontrak yang memblokir.

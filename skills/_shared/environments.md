@@ -57,7 +57,8 @@ AGENT_LOCK_PID=$PPID "$AGENT_WORKFLOW_DIR/bin/lock.sh" acquire deploy:dev <KODE>
 | Contract penuh di dev | `schemathesis run <spec> --url <base dev> --include-path <endpoint tiket>` | dev saja; fuzzing & menulis data |
 | Contract di beta/live | Schemathesis hanya `--include-method GET --include-method HEAD --include-method OPTIONS`, tanpa fuzzing berat | `--safe` di http-evidence |
 | Pact sebagai penyedia | verifier Pact project (`pact-provider-verifier`, plugin framework) terhadap pact klien dari folder/broker | `/verify-provider` |
-| Breaking change contract | `oasdiff breaking <spec base> <spec tiket>` (OpenAPI) | `/check-compat` |
+| Spec dari kode | perintah ekspor spec (memory project) → `openapi-check.sh validate`, lalu `openapi-check.sh diff <contract> <spec kode> --paths <endpoint tiket>` | `/develop-tiket` langkah 4–6 |
+| Breaking change contract | `oasdiff breaking <spec kode base> <spec kode tiket>` (OpenAPI) | `/check-compat` |
 | Migrasi | `migration-lint.sh`, `migration-check.sh` | `/write-migration` |
 | Bukti HTTP | `http-evidence.sh` | semua laporan |
 

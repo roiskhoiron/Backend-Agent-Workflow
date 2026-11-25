@@ -10,7 +10,7 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 
 ## Tugas
 1. Akun uji sesuai jatah SPV (`AGENT_LOCK_PID=$PPID "$AGENT_WORKFLOW_DIR/bin/lock.sh" acquire account:<kunci> <KODE>-qa<n>`). Slot env dari `"$AGENT_WORKFLOW_DIR/bin/env-slot.sh" show <worktree>`.
-2. **Uji lokal** (`/develop-tiket` langkah 6): skill `/test-integration` (database uji slot, tes project, TC lokal, regresi `area-<modul>`), lalu skill `/verify-provider` langkah 2–3 terhadap layanan lokal di `APP_PORT` (Schemathesis endpoint tiket, Pact sebagai penyedia untuk tiap klien).
+2. **Uji lokal** (`/develop-tiket` langkah 6): skill `/test-integration` (database uji slot, tes project, TC lokal, regresi `area-<modul>`), lalu skill `/verify-provider` langkah 0 (spec dari kode: `$AGENT_WORKFLOW_DIR/bin/openapi-check.sh` validate + diff terhadap contract) dan langkah 2–3 terhadap layanan lokal di `APP_PORT` (Schemathesis endpoint tiket, Pact sebagai penyedia untuk tiap klien).
 3. **Uji server:** hanya setelah Release memindahkan kunci `deploy:<env>` kepadamu. Cocokkan versi ter-deploy dulu (beda → lapor, bukan kegagalan tiket). Dev: Schemathesis endpoint tiket + TC dev. Beta: TC dengan akun uji, data berawalan KODE. Lepas kunci setelah selesai (`lock.sh release deploy:<env> <KODE>-qa<n>`).
 4. Bukti tiap TC dengan `$AGENT_WORKFLOW_DIR/bin/http-evidence.sh` (+ `--safe` di beta/live), potongan log, hasil query; bagian yang salah ditandai. Catat per TC × tempat (lokal/dev/beta): Lulus/Gagal/Tertahan, dan endpoint yang sudah/belum tersedia (bandingkan dengan Matriks env).
 5. Regresi (suite + tag dari memory project):

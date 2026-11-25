@@ -28,8 +28,9 @@ Yang dibuat `install.sh` (idempoten, symlink: perubahan di repo langsung berlaku
 | `~/.agent-workflow/build-roots.txt` (opsional) | folder project tempat agen boleh menghapus artefak build | kamu |
 
 ## Per project
+- **Syarat stack:** project harus bisa mengekspor spec OpenAPI 3.0/3.1 dari kode (anotasi Swagger / generator framework, contoh per stack di `skills/_shared/rules.md` → Syarat stack). Cek sekali: `bin/openapi-check.sh validate <spec hasil ekspor>` harus `OK`.
 - **`qa.env`**: tambahkan `qa.env` ke `.gitignore` dulu, salin `templates/qa.env.example` ke root project sebagai `qa.env`, isi sendiri.
-- **Memory project** (ditanya agen sekali, disimpan): branch `<primary>`/`<protected>` + strategi merge, base URL dev/beta/live + cara cek versi ter-deploy, perintah project (tes, migrasi naik/turun, dump skema, jalankan lokal, deploy per env), engine database uji, lokasi spec OpenAPI + pact, klien + versi tertua yang didukung, pemilik migrasi production, platform dokumentasi (`repo`/`claude-docs`), suite regresi API, dokumen sumber.
+- **Memory project** (ditanya agen sekali, disimpan): branch `<primary>`/`<protected>` + strategi merge, base URL dev/beta/live + cara cek versi ter-deploy, perintah project (tes, migrasi naik/turun, dump skema, ekspor spec OpenAPI, jalankan lokal, deploy per env), engine database uji, lokasi spec OpenAPI + pact, klien + versi tertua yang didukung, pemilik migrasi production, platform dokumentasi (`repo`/`claude-docs`), suite regresi API, dokumen sumber.
 - Blok `## Catatan agen` yang diberikan agen → kamu commit sendiri ke `CLAUDE.md` project.
 
 ---

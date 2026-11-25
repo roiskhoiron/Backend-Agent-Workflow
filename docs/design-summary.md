@@ -17,10 +17,11 @@ Backend memakai kerangka Mobile (empat perintah + `/branch-manager`, tim agen, w
 | Tiket tulisan manual tetap diterima | Workflow produksi tiket saat ini baru membuat tiket role Mobile |
 | Guard menambah pagar production DB/env, tulis HTTP ke host production, dan data Docker user | Risiko khas Backend; guard hanya membaca teks perintah, jadi skrip (`test-db.sh`, `migration-check.sh`, `http-evidence.sh`) ikut menolak target non-lokal/production |
 | Bukti tekstual (`http-evidence.sh`) pengganti screenshot bertanda | Tidak ada layar; rahasia otomatis disamarkan |
+| Stack bebas, tetapi wajib membangkitkan spec OpenAPI 3.x dari kode (anotasi Swagger/generator); diperiksa `openapi-check.sh` | Keputusan user 2026-11-25. Contract tetap sumber kebenaran; spec dari kode = bukti kode memenuhinya. Swagger 2.0 ditolak |
 | Skrip jalan di Linux dan macOS | Developer Backend sering memakai Linux |
 
 ## Masih terbuka
-- [ ] Stack Backend: bahasa, framework, database (menentukan perintah project di memory project).
+- [x] Stack Backend: bebas, **syarat**: bisa mengekspor spec OpenAPI 3.x dari kode (`rules.md` → Syarat stack). Perintah project tetap dicatat per project di memory.
 - [ ] Berapa lama aplikasi mobile versi lama harus tetap didukung (dipakai `/check-compat` dan pola tiga tahap).
 - [ ] Siapa yang menjalankan migrasi di production: manusia atau pipeline.
 - [ ] Skill khusus stack yang menggantikan `android-cli` dan `kotlin-agent-skills` di Mobile.
