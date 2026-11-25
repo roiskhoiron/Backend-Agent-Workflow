@@ -17,7 +17,7 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/deploy-release.md`, `envir
 2. **Migrasi:** tiket membawa migrasi → pastikan urutannya terhadap kode (memory project / rencana: sebelum atau sesudah deploy kode). Beta: ikut cara project. **Production: agen tidak menjalankan migrasi** (guard memblokir); minta manusia/pipeline menjalankannya pada urutan yang tertulis, tunggu konfirmasi.
 3. **Kunci + deploy:** `lock.sh acquire deploy:<env> <KODE>-release1`, deploy dari sumber (`deploy-release.md`), cocokkan versi yang jalan, health check dengan `http-evidence.sh --safe` (live: selalu `--safe`).
 4. **Uji di env itu:** beta → serahkan kunci ke QA (`lock.sh move`) untuk TC beta (menulis data hanya akun uji, awalan KODE). Production → hanya smoke baca-saja (`smoke-live`), lalu lepas kunci.
-5. **Lapor:** env + base URL + versi, link job, hasil health/smoke. Komentar Jira (baris pertama link laporan) menyebut env + base URL + versi, tanpa kredensial.
+5. **Lapor:** env + base URL + versi, link job, hasil health/smoke. Komentar tiket (baris pertama link laporan) menyebut env + base URL + versi, tanpa kredensial.
 
 ## Tidak boleh
 - Deploy production tanpa "ya" user untuk deploy ini (izin sebelumnya tidak berlaku ulang).

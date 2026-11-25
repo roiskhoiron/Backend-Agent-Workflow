@@ -1,6 +1,6 @@
 # Alur kerja
 
-## Papan kanban Jira
+## Papan kanban (GitHub Projects, GitLab board, atau Jira)
 Setiap tiket bergerak dari kiri ke kanan. Satu kolom = satu status tiket.
 
 | | Todo | In Progress | Ready To Review | Done |
@@ -8,7 +8,7 @@ Setiap tiket bergerak dari kiri ke kanan. Satu kolom = satu status tiket.
 | **Artinya** | Tiket baru, belum dicek | Layak dan sedang dikerjakan | Kode + uji + deploy dev/beta selesai, menunggu review manusia | Diterima dan selesai |
 | **Perintah** | `/validate-tiket` | `/develop-tiket` | `/rilis-tiket` (feedback QA) | `/rilis-tiket` (merge PR tiket), `/branch-manager --rilis` (rilis versi) |
 | **Pindah oleh** | manusia; atau agen (`/rilis-tiket`, izin user) bila ditolak QA | agen (Validator), bila **Layak** | agen (Release) | **manusia saja** |
-| **Bukti** | — | laporan validasi + komentar Jira | rencana, laporan uji (request/response/log), PR/MR, versi ter-deploy, komentar Jira | — |
+| **Bukti** | — | laporan validasi + komentar tiket | rencana, laporan uji (request/response/log), PR/MR, versi ter-deploy, komentar tiket | — |
 
 ```mermaid
 flowchart LR
@@ -66,7 +66,7 @@ flowchart TD
 | 6 | Tes integrasi, Schemathesis, Pact sebagai penyedia, di layanan lokal slot | QA | Bagian laporan uji |
 | 7 | Deploy dev selalu, beta juga (production hanya dengan izin); TC di server dalam kunci `deploy:<env>`; lalu putuskan selesai + publikasi laporan uji | Release, QA, lalu SPV | Versi ter-deploy, hasil TC per server, link laporan uji |
 | 8 | Push terakhir, PR/MR ditandai siap | Release | Link PR/MR |
-| 9 | Rangkum link di komentar tiket | Release | Komentar Jira |
+| 9 | Rangkum link di komentar tiket | Release | Komentar tiket |
 | 10 | Geser tiket, bersihkan slot + database uji + worktree | Release, SPV | Ready To Review |
 
 Planner menemukan **contract tidak bisa dipenuhi** → alur berhenti. Contract tidak diubah di sini: operator menjalankan `/modify-epic-ticket` di workflow produksi tiket.
@@ -74,7 +74,7 @@ Planner menemukan **contract tidak bisa dipenuhi** → alur berhenti. Contract t
 ## `/validate-tiket`
 1. Baca tiket + jejak pengerjaan sebelumnya.
 2. **Bug:** reproduksi lewat request ke dev (beta/live hanya method aman) + log + data. **Fitur:** requirement, contract, kebutuhan migrasi, klien terdampak.
-3. Laporan berisi bukti tekstual, komentar Jira: **Layak** / **Layak dengan catatan** / **Tidak layak**.
+3. Laporan berisi bukti tekstual, komentar tiket: **Layak** / **Layak dengan catatan** / **Tidak layak**.
 4. Layak → In Progress. Tidak layak → tetap Todo.
 
 Mode tim: PdM (bisnis), Contract Runner (Schemathesis/Pact/diff spec), HoE (blueprint, data, klien, reproduksi), PjM (ketergantungan, tiket klien yang menunggu), Spesialis eskalasi hanya saat pemicu. Product Designer tidak dipanggil.
@@ -86,7 +86,7 @@ Baca feedback QA terakhir tiap tiket: **ditolak** → Todo (izin user); **minta 
 Tracing commit → tiket, cek migrasi + kompatibilitas + klien yang menunggu, Matriks env live, regresi penuh di beta, laporan rilis, PR rilis. User: **Konfirmasi / Tolak / Ikuti rekomendasi**. Manusia merge PR rilis → tag `vX.Y.Z` → deploy live (izin atau pipeline) → smoke live.
 
 ## `/audit-issue`
-Hanya-baca: telusuri kode, git, log, reproduksi lewat request (tanpa container, tanpa deploy). Hasil: satu laporan + saran tiket Jira.
+Hanya-baca: telusuri kode, git, log, reproduksi lewat request (tanpa container, tanpa deploy). Hasil: satu laporan + saran tiket.
 
 ## Urutan rilis dengan klien
 - **Backend lebih dulu:** endpoint baru ada di live sebelum Mobile/Frontend web yang memakainya dirilis.

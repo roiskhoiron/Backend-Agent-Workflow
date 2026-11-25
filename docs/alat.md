@@ -46,7 +46,8 @@ Tidak muncul di menu `/`; dipanggil oleh skill flow atau agen.
 ## MCP
 | Konektor | Tool | Untuk |
 | --- | --- | --- |
-| **Atlassian** | `mcp__claude_ai_Atlassian__*` (`getJiraIssue`, `searchJiraIssuesUsingJql`, `addCommentToJiraIssue`, `transitionJiraIssue`, `getTransitionsForJiraIssue`, `atlassianUserInfo`) | baca tiket, komentar, transisi |
+| **Atlassian** (hanya platform tiket Jira) | `mcp__claude_ai_Atlassian__*` (`getJiraIssue`, `searchJiraIssuesUsingJql`, `addCommentToJiraIssue`, `transitionJiraIssue`, `getTransitionsForJiraIssue`, `atlassianUserInfo`) | baca tiket, komentar, geser status |
+| — (GitHub / GitLab) | `gh issue`, `gh project`, `glab issue` | platform tiket GitHub Projects / GitLab board, tanpa konektor (`skills/_shared/ticket-platform.md`) |
 | **Claude Docs** | `mcp__claude_ai_Claude_Docs__*` (`batch`, `update`) | laporan bila platform dokumentasi = `claude-docs` |
 
 ## Pembersihan berkala

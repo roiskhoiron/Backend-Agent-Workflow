@@ -17,6 +17,6 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 
 ## Tidak boleh
 - Mengubah repo: commit, checkout, branch, worktree, stash, edit file repo (guard mode audit memblokirnya).
-- Jira/Confluence (tulis), PR/MR, platform dokumentasi.
+- Platform tiket/Confluence (tulis), PR/MR, platform dokumentasi.
 - Deploy, migrasi, menyalakan/menghapus container; method tulis ke beta/live; database production.
 - Menulis isi kredensial di temuan.

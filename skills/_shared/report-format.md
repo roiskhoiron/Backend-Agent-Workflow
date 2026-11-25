@@ -7,7 +7,7 @@ Gaya: Bahasa Indonesia, singkat padat, ramah pemula. Tabel dan diagram mermaid l
 ## Platform dokumentasi
 Dicatat sekali di memory project (`rules.md` → Lokasi), ditanya sekali bila belum ada. Saran default: `repo`.
 
-| Platform | Tempat | Cara publikasi | Link di Jira |
+| Platform | Tempat | Cara publikasi | Link di tiket |
 |---|---|---|---|
 | `repo` (default) | Markdown di branch `agent-docs` milik `origin`, worktree `<repo>-docs` sejajar checkout. Branch terpisah dari kode: tidak masuk PR tiket, tidak menggeser `<sha-rilis>` | `docs-publish.sh init <checkout>` sekali, lalu `docs-publish.sh put <docs-worktree> <path> <file> "<pesan>"` | link web dari keluaran `put` |
 | `claude-docs` | Claude Docs | `mcp__claude_ai_Claude_Docs__batch` / `update`, sama seperti Mobile | link dokumen |
@@ -22,7 +22,7 @@ Lokasi tiap dokumen (platform `repo`; di `claude-docs` jadi judul dokumen):
 | Perubahan rilis | `docs/rilis/vX.Y.Z.md` |
 | Catatan keputusan teknis (ADR) | `docs/adr/NNNN-<judul>.md` **di branch tiket** (ikut PR, karena melekat pada kodenya) |
 
-Dokumen yang diperbarui (validasi ulang, revisi rencana) ditulis ulang di path yang sama; riwayatnya ada di git. **Tunggu link kembali** sebelum berkomentar di Jira; tanpa link → jangan komentar.
+Dokumen yang diperbarui (validasi ulang, revisi rencana) ditulis ulang di path yang sama; riwayatnya ada di git. **Tunggu link kembali** sebelum berkomentar di tiket; tanpa link → jangan komentar.
 
 ## Bukti tekstual
 Pengganti screenshot bertanda di Mobile. Tiap TC memuat blok bukti dari `http-evidence.sh` (request, response, durasi; rahasia sudah disamarkan), potongan log, dan bila perlu hasil query, dengan bagian yang salah ditandai:
@@ -68,7 +68,7 @@ Satu dokumen per audit, dibuat di awal audit dengan kerangka per bagian, lalu di
 4. **Perbandingan lampiran vs kode vs perilaku API** (bila ada lampiran): tabel `Lampiran | Kode | API | Beda?`.
 5. **Akar masalah** + tingkat keyakinan (**pasti** / **kuat** / **dugaan**), dampak, perkiraan ukuran perbaikan.
 6. **Saran langkah berikutnya**.
-7. **Saran tiket Jira** (opsional, tidak dibuat): judul, deskripsi, AC, endpoint, perlu migrasi atau tidak.
+7. **Saran tiket** (opsional, tidak dibuat): judul, deskripsi, AC, endpoint, perlu migrasi atau tidak.
 8. **Cara audit**: versi/ref dan server yang diperiksa, alat yang dipakai, hal yang tidak bisa diperiksa (termasuk: guard tidak menangkap tulis lewat shell).
 
 ## Laporan rilis (`/branch-manager`)
@@ -77,7 +77,7 @@ Dokumen `Perubahan rilis vX.Y.Z`. Urutan isi:
 2. Versi + ref asal (hash `<primary>`, `<protected>`, `<sha-rilis>`).
 3. Tabel per perubahan:
 
-| KODE | Ringkasan | Branch | PR/MR | Programmer | Status Jira | Migrasi | Kompatibilitas |
+| KODE | Ringkasan | Branch | PR/MR | Programmer | Status tiket | Migrasi | Kompatibilitas |
 |---|---|---|---|---|---|---|---|
 
 4. Commit tak terlacak dan tiket belum Done: ditandai.
@@ -88,7 +88,7 @@ Dokumen `Perubahan rilis vX.Y.Z`. Urutan isi:
 9. Rekomendasi agen.
 10. Deploy live (versi + base URL), hasil smoke live, link PR rilis, tag (diisi setelah ada).
 
-## Komentar Jira
+## Komentar tiket
 Ditulis seperti rekan satu tim yang sopan, dan bisa dipahami pembaca awam (PM, QA, bisnis), bukan hanya developer.
 
 **Gaya**
@@ -114,4 +114,4 @@ Server uji: <base URL dev> (versi <sha>) · Perubahan kode: <link PR>
 Kalau ada yang kurang pas, tinggal kabari aku ya. Terima kasih!
 ```
 
-Kirim lewat `mcp__claude_ai_Atlassian__addCommentToJiraIssue`.
+Kirim lewat operasi Komentar di `ticket-platform.md` (GitHub, GitLab, atau Jira).

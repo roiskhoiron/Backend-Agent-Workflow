@@ -1,7 +1,7 @@
 # Ringkasan rancangan
 
 - Rancangan Backend: [Draft: Agent Workflow Delivery Backend](https://claude.ai/code/artifact/f8c3fe18-67ff-47b3-a01c-9384b9cd3054)
-- Kerangka yang dipakai ulang: [Rancangan Workflow Agen Jira (Mobile)](https://claude.ai/artifact/EA7oF3JpM3ahrmgPakUfzV)
+- Kerangka yang dipakai ulang: [Rancangan workflow agen Mobile](https://claude.ai/artifact/EA7oF3JpM3ahrmgPakUfzV)
 
 Backend memakai kerangka Mobile (empat perintah + `/branch-manager`, tim agen, worktree Orca, flag, alur rilis). Bedanya ada di tiga hal pokok: **tidak ada layar** untuk diuji, ada **migrasi database**, dan Backend adalah **penyedia contract** untuk Mobile dan Frontend web.
 
@@ -18,6 +18,7 @@ Backend memakai kerangka Mobile (empat perintah + `/branch-manager`, tim agen, w
 | Guard menambah pagar production DB/env, tulis HTTP ke host production, dan data Docker user | Risiko khas Backend; guard hanya membaca teks perintah, jadi skrip (`test-db.sh`, `migration-check.sh`, `http-evidence.sh`) ikut menolak target non-lokal/production |
 | Bukti tekstual (`http-evidence.sh`) pengganti screenshot bertanda | Tidak ada layar; rahasia otomatis disamarkan |
 | Stack bebas, tetapi wajib membangkitkan spec OpenAPI 3.x dari kode (anotasi Swagger/generator); diperiksa `openapi-check.sh` | Keputusan user 2026-11-25. Contract tetap sumber kebenaran; spec dari kode = bukti kode memenuhinya. Swagger 2.0 ditolak |
+| Platform tiket tidak dipilihkan: default none, agen bertanya di awal; pilihan GitHub Issues + Projects, GitLab issue board, Jira (`ticket-platform.md`) | Keputusan user 2026-11-25. Sejalan dengan `tracker.type` di workflow produksi tiket; guard menjaga Done di ketiganya, dan PR memakai `Refs #n`, bukan `Closes #n` |
 | Skrip jalan di Linux dan macOS | Developer Backend sering memakai Linux |
 
 ## Masih terbuka

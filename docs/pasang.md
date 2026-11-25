@@ -1,7 +1,7 @@
 # Pasang di komputer lain (Linux / macOS)
 
 1. **Prasyarat:** `git`, `jq`, `python3`, `docker`, `gh` dan/atau `glab`, Claude Code, Orca. Untuk uji contract: `schemathesis` (mis. `uv tool install schemathesis`), verifier Pact project, `oasdiff`. Mode tim: `/config` → Teammate mode → `auto`.
-2. **Konektor claude.ai:** **Atlassian** (Jira); **Claude Docs** bila platform dokumentasi `claude-docs`.
+2. **Konektor claude.ai:** **Atlassian** hanya bila platform tiket = Jira (GitHub/GitLab cukup `gh`/`glab` yang sudah login); **Claude Docs** bila platform dokumentasi `claude-docs`.
 3. **Login CLI:** `gh auth login` / `glab auth login`.
 4. **Pasang dan cek:**
    ```bash
@@ -24,7 +24,7 @@ Yang dibuat `install.sh` (idempoten, symlink: perubahan di repo langsung berlaku
 | File | Isi | Siapa |
 | --- | --- | --- |
 | `~/.agent-workflow/prod-hosts.txt` | host database production + API live, satu per baris | kamu ([Pagar keamanan](pagar-keamanan.md)) |
-| `~/.agent-workflow/jira-transitions.json` | id transisi Todo / In Progress / Ready To Review per project | agen bertanya saat pertama jalan |
+| `~/.agent-workflow/board-transitions.json` | id transisi Todo / In Progress / Ready To Review per project | agen bertanya saat pertama jalan |
 | `~/.agent-workflow/build-roots.txt` (opsional) | folder project tempat agen boleh menghapus artefak build | kamu |
 
 ## Per project

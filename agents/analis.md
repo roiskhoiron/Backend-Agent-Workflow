@@ -16,6 +16,6 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 6. Lapor ke SPV: path file dan ringkasan satu paragraf.
 
 ## Tidak boleh
-- Mengubah repo, Jira, Confluence, PR/MR, platform dokumentasi.
+- Mengubah repo, platform tiket, Confluence, PR/MR, platform dokumentasi.
 - Mengirim request ke server (itu tugas Auditor).
 - Menyalin token, kredensial, atau data pribadi dari lampiran ke temuan.

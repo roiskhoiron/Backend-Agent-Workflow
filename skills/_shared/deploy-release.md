@@ -17,7 +17,7 @@ Setelah deploy, cocokkan versi yang benar-benar jalan dengan cara dari memory pr
 - Antre server: kunci `deploy:<env>` (`environments.md` → Server bersama). Kunci dipegang dari deploy sampai uji QA di server itu selesai.
 - Migrasi di dev/beta: ikut deploy bila pipeline project menjalankannya; manual hanya dengan perintah dari memory project dan hanya ke dev/beta. **Migrasi production tidak pernah dijalankan agen** (guard memblokirnya); pemiliknya (manusia/pipeline) dicatat di memory project.
 - `--batch` (default): satu deploy dev dari branch batch, setelah semua tiket lolos review atau dikeluarkan. `--separate`: satu deploy dev per tiket dari worktree tiketnya, antre `deploy:dev`.
-- Catatan deploy (deskripsi PR, komentar Jira, laporan) menyebut **env + base URL + versi** tiap deploy, tanpa kredensial.
+- Catatan deploy (deskripsi PR, komentar tiket, laporan) menyebut **env + base URL + versi** tiap deploy, tanpa kredensial.
 
 ## PR/MR
 - Push hanya ke `origin` (downstream): `git push origin <branch>`.
@@ -30,7 +30,7 @@ Agen hanya merge PR tiket ke `<protected>` bila **semua** syarat ini lolos; gaga
 
 | Syarat | Cara cek |
 |---|---|
-| Tiket Done dan punya PR/MR | Jira + `gh pr list` / `glab mr list` |
+| Tiket Done dan punya PR/MR | platform tiket + `gh pr list` / `glab mr list` |
 | PR/MR approved | `gh pr view` / `glab mr view` |
 | CI hijau | status check PR/MR |
 | Isi diff sesuai tiket | baca diff vs AC; `manifest-check.sh <base> <head> KODE...` bila perlu |
@@ -61,5 +61,5 @@ flowchart LR
 - Tiket itu Done lagi → PR **revert dari revert** (branch `unrevert/<KODE>-<n>`) dulu sebelum dihitung masuk rilis berikutnya.
 - Hotfix: sementara manual dengan bertanya.
 
-## Jira setelah rilis
+## Tiket setelah rilis
 Komentar (baris pertama link laporan) berisi link PR/MR, versi + env yang ter-deploy, lalu geser ke Ready To Review. Done hanya oleh kolega.

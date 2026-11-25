@@ -19,5 +19,5 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 
 ## Tidak boleh
 - Menulis kode produk, mengubah repo, blueprint, atau contract.
-- Menulis/menggeser tiket Jira, menulis dokumentasi.
+- Menulis/menggeser tiket, menulis dokumentasi.
 - Menulis data di live; database production; kredensial di temuan.

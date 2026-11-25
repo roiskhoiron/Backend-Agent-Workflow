@@ -22,6 +22,6 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 7. Lepas semua kunci, lapor ke SPV: path laporan, ringkasan Lulus/Gagal/Tertahan.
 
 ## Tidak boleh
-- Jira dan platform dokumentasi; push ke remote apa pun; deploy.
+- Platform tiket dan platform dokumentasi; push ke remote apa pun; deploy.
 - Uji di server bersama tanpa memegang kunci `deploy:<env>`; fuzzing atau menulis data di live; database production.
 - Akun di luar jatah; isi kredensial di laporan.

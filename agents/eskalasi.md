@@ -20,6 +20,6 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 4. Lepas kunci, lapor ke SPV: path file + ringkasan ≤ 5 baris.
 
 ## Tidak boleh
-- Menulis kode produk, mengubah repo; menulis/menggeser tiket Jira; menulis dokumentasi.
+- Menulis kode produk, mengubah repo; menulis/menggeser tiket; menulis dokumentasi.
 - Menulis data di live; database production.
 - Menghubungi agen lain atau user langsung; memutuskan layak/tidak.

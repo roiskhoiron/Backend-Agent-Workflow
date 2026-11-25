@@ -36,7 +36,7 @@ AGENT_LOCK_PID=$PPID "$AGENT_WORKFLOW_DIR/bin/lock.sh" acquire deploy:dev <KODE>
 
 **Kunci dipakai** (`acquire` exit 1, stdout = pemilik `<KODE>-<peran><n>`):
 - Pemilik dari batch/rilis yang sama → antre: coba lagi tiap 30 detik, tanpa bertanya.
-- Pemilik **tiket Jira lain** → **tanya user** (juga di mode otonom; teammate lewat SPV): "Server **dev** sedang dipakai **<KODE> — <judul>** (deploy + uji). Tugas kita: **<KODE> — <judul>**. Tunggu atau dahulukan?" **Tunggu** → antre. **Dahulukan** → minta user menghubungi pemiliknya; agen tidak merebut kunci orang lain. Pemilik `human-*` (user sedang menguji manual) diperlakukan sama.
+- Pemilik **tiket lain** → **tanya user** (juga di mode otonom; teammate lewat SPV): "Server **dev** sedang dipakai **<KODE> — <judul>** (deploy + uji). Tugas kita: **<KODE> — <judul>**. Tunggu atau dahulukan?" **Tunggu** → antre. **Dahulukan** → minta user menghubungi pemiliknya; agen tidak merebut kunci orang lain. Pemilik `human-*` (user sedang menguji manual) diperlakukan sama.
 - Kunci milik proses yang sudah mati otomatis dianggap bebas.
 
 ## Reproduksi dan bukti: request + log

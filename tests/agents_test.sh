@@ -64,7 +64,7 @@ for n in $(cat $files | grep -oE '`/[a-z][a-z-]+[ `]' | tr -d '`/ ' | sort -u); 
   case " $EXTERNAL " in *" $n "*) continue;; esac
   assert_eq yes "$([ -d "$REPO/skills/$n" ] && echo yes || echo no)" "skill /$n exists"
 done
-for d in rules environments credentials deploy-release report-format; do
+for d in rules ticket-platform environments credentials deploy-release report-format; do
   assert_eq yes "$([ -f "$REPO/skills/_shared/$d.md" ] && echo yes || echo no)" "_shared/$d.md exists"
 done
 assert_eq yes "$([ -f "$REPO/templates/qa.env.example" ] && echo yes || echo no)" "qa template exists"

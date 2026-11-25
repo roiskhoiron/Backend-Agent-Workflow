@@ -396,7 +396,8 @@ check_Bash() {
           esac;;
         git) GSUB_OFF=-1; check_git "${w[@]:$((i+1))}"; gsub=$((i + 1 + GSUB_OFF));;
         orca) check_orca "${w[@]:$((i+1))}";;
-        glab) [ -n "$AUDIT" ] && check_forge "${w[@]:$((i+1))}";;
+        glab) [ -n "$AUDIT" ] && check_forge "${w[@]:$((i+1))}"; check_board_cli glab "${w[@]:$((i+1))}";;
+        gh) check_board_cli gh "${w[@]:$((i+1))}";;
         rm) [ $i -eq $gsub ] || check_rm "${w[@]:$((i+1))}";;
         COMPOSE_PROJECT_NAME=*) COMPOSE_ENV=${w[$i]#*=};;
         docker) check_docker "${w[@]:$((i+1))}";;
@@ -434,17 +435,71 @@ check_edit() {
   return 0
 }
 
-# transitionJiraIssue: only transition ids allowed for the project in ${AGENT_WORKFLOW_STATE:-~/.agent-workflow}/jira-transitions.json
+# --- ticket platform (skills/_shared/ticket-platform.md): only Todo / In Progress / Ready To Review, never Done ---
+BOARD=${AGENT_WORKFLOW_STATE:-$HOME/.agent-workflow}/board-transitions.json
+board_cfg() { "$JQ" -e type "$BOARD" >/dev/null 2>&1 || block "config status board tidak ada/rusak ($BOARD). Minta user: jalankan setup status board (ticket-platform.md)."; }
+
+# transitionJiraIssue: transition id must be in board-transitions.json["jira:<PROJECT>"].allow
 check_jira() {
-  local cfg=${AGENT_WORKFLOW_STATE:-$HOME/.agent-workflow}/jira-transitions.json
   local key id proj
   key=$(printf '%s' "$input" | "$JQ" -r '.tool_input.issueIdOrKey // empty' 2>/dev/null)
   id=$(printf '%s' "$input" | "$JQ" -r '.tool_input.transition.id // empty' 2>/dev/null)
   proj=$(printf '%s' "$key" | sed -E 's/-[0-9]+$//')
-  "$JQ" -e type "$cfg" >/dev/null 2>&1 || block "config transisi Jira tidak ada/rusak ($cfg). Minta user: jalankan setup transisi."
-  "$JQ" -e --arg p "$proj" 'has($p)' "$cfg" >/dev/null 2>&1 || block "project '$proj' belum punya daftar transisi. Minta user: jalankan setup transisi."
-  "$JQ" -e --arg p "$proj" --arg i "$id" '.[$p].allow // [] | map(tostring) | index($i) != null' "$cfg" >/dev/null 2>&1 ||
+  board_cfg
+  "$JQ" -e --arg p "jira:$proj" 'has($p)' "$BOARD" >/dev/null 2>&1 || block "project '$proj' belum punya daftar transisi. Minta user: jalankan setup status board."
+  "$JQ" -e --arg p "jira:$proj" --arg i "$id" '.[$p].allow // [] | map(tostring) | index($i) != null' "$BOARD" >/dev/null 2>&1 ||
     block "transisi id '$id' untuk $proj tidak diizinkan. Done hanya dipindah kolega; pindahkan hanya ke status yang ada di daftar allow."
+}
+
+# a status label being added must be allowed by the board that lists it in "status" (github-label:*, gitlab:*)
+check_status_labels() { # labels...
+  local l
+  for l; do
+    [ -n "$l" ] || continue
+    "$JQ" -e --arg l "$l" '[to_entries[] | select(.key|test("^(gitlab|github-label):")) | select((.value.status // []) | index($l))] | length > 0' "$BOARD" >/dev/null 2>&1 || continue
+    "$JQ" -e --arg l "$l" '[to_entries[] | select(.key|test("^(gitlab|github-label):")) | select((.value.status // []) | index($l)) | select((.value.allow // []) | index($l))] | length > 0' "$BOARD" >/dev/null 2>&1 ||
+      block "label status '$l' tidak diizinkan: agen hanya menggeser ke Todo / In Progress / Ready To Review. Done hanya oleh manusia."
+  done
+}
+
+# gh/glab issue + project writes: never close (= Done), status moves only to allowed values
+check_board_cli() { # tool args...
+  local tool=$1 a prev='' labels=() opt='' proj=''
+  shift
+  [ "${1:-}" = issue ] || [ "${1:-}" = project ] || return 0
+  if [ -n "$AUDIT" ]; then
+    case "$1 ${2:-}" in
+      'issue view'|'issue list'|'issue status'|'project view'|'project list'|'project item-list'|'project field-list'|'issue '|'project ') ;;
+      *) audit_block "$tool $1 ${2:-}";;
+    esac
+    return 0
+  fi
+  case "$1 ${2:-}" in
+    'issue close'|'issue delete'|'issue transfer'|'project delete'|'project item-delete'|'project item-archive'|'project close')
+      block "$tool $1 $2 dilarang: menutup/menghapus tiket = Done, hanya oleh manusia (ticket-platform.md).";;
+  esac
+  for a in "${@:3}"; do
+    case $prev in
+      --label|-l|--add-label) IFS=, read -ra x <<< "$a"; labels+=("${x[@]}");;
+      --single-select-option-id) opt=$a;;
+      --project-id) proj=$a;;
+    esac
+    case $a in
+      --label=*|--add-label=*) IFS=, read -ra x <<< "${a#*=}"; labels+=("${x[@]}");;
+      --single-select-option-id=*) opt=${a#*=};;
+      --project-id=*) proj=${a#*=};;
+      --state=closed|--state=close) block "$tool $1 $2 --state closed dilarang: Done hanya oleh manusia.";;
+    esac
+    prev=$a
+  done
+  if [ -n "$opt" ]; then
+    board_cfg
+    "$JQ" -e --arg p "github:$proj" 'has($p)' "$BOARD" >/dev/null 2>&1 || block "GitHub Project '$proj' belum punya daftar status. Minta user: jalankan setup status board."
+    "$JQ" -e --arg p "github:$proj" --arg o "$opt" '.[$p].allow // [] | map(tostring) | index($o) != null' "$BOARD" >/dev/null 2>&1 ||
+      block "status option '$opt' tidak diizinkan di Project $proj: agen hanya menggeser ke Todo / In Progress / Ready To Review."
+  fi
+  [ ${#labels[@]} -gt 0 ] && [ -f "$BOARD" ] && check_status_labels "${labels[@]}"
+  return 0
 }
 
 input=$(cat)

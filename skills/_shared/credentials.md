@@ -1,6 +1,6 @@
 # Akun uji dan kredensial
 
-Isi kredensial **tidak pernah** ditulis ke dokumen, Jira, PR/MR, commit, log laporan, atau `CLAUDE.md`. Di laporan cukup sebut nama kunci (mis. `QA_USER1`). Bukti HTTP memakai `http-evidence.sh`, yang menyamarkan header dan field rahasia.
+Isi kredensial **tidak pernah** ditulis ke dokumen, platform tiket, PR/MR, commit, log laporan, atau `CLAUDE.md`. Di laporan cukup sebut nama kunci (mis. `QA_USER1`). Bukti HTTP memakai `http-evidence.sh`, yang menyamarkan header dan field rahasia.
 
 ## Urutan cari
 1. `qa.env` di root project (template dari repo workflow ini)

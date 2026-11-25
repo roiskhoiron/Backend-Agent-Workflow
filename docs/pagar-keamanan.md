@@ -9,9 +9,10 @@
 | **Menulis data ke host production lewat HTTP** | `curl -X POST https://api.live...`, `curl -d ...`, `http PUT ...` ke host di `prod-hosts.txt` |
 | **Data Docker milik user** | `docker system prune`, `docker volume prune`, `docker rm mydb`, `docker volume rm pgdata`, `docker compose down -v` (selain project `agent-*`) |
 | `rm -r` di luar project | kecuali artefak build (`node_modules`, `target`, `dist`, `build`, `.venv`, …) di worktree lain repo yang sama, dan isi `${TMPDIR:-/tmp}/{qa,validate,audit}` |
-| Transisi Jira | status di luar `~/.agent-workflow/jira-transitions.json` (Done tidak pernah ada) |
+| Geser status tiket | status di luar `~/.agent-workflow/board-transitions.json` (Done tidak pernah ada): transisi Jira, opsi Status GitHub Projects, label status GitHub/GitLab |
+| Menutup tiket | `gh issue close`, `glab issue close`, `gh issue delete`, `--state closed` (menutup = Done, hanya manusia) |
 | Worktree & Orca | edit di worktree primary; tab/workspace/project Orca baru; `git worktree remove --force` |
-| Mode audit | semua penulisan ke repo, Jira, git remote; `docker run/rm/compose up`; `test-db.sh`, `migration-check.sh`, `docs-publish.sh`, `env-slot.sh` (kecuali `test-db.sh status`, `env-slot.sh show\|list`, `docs-publish.sh link`) |
+| Mode audit | semua penulisan ke repo, platform tiket, git remote; `docker run/rm/compose up`; `test-db.sh`, `migration-check.sh`, `docs-publish.sh`, `env-slot.sh` (kecuali `test-db.sh status`, `env-slot.sh show\|list`, `docs-publish.sh link`) |
 
 ### `prod-hosts.txt`
 `~/.agent-workflow/prod-hosts.txt` diisi **kamu**, satu host per baris (database production, API live, replika); subdomain ikut cocok, `#` untuk komentar.
@@ -41,9 +42,9 @@ Guard hanya membaca **teks perintah**. URL production yang tersembunyi di `.env`
 5. Hotfix (sementara manual).
 6. Kredensial tidak ada atau mengarah ke production.
 7. Dua fix hotfix bentrok.
-8. Kunci `deploy:<env>` dipegang tiket Jira lain.
+8. Kunci `deploy:<env>` dipegang tiket lain.
 
-**Kredensial** dibaca dari `qa.env` lokal yang di-gitignore dan tidak pernah ditulis ke dokumen, Jira, atau MR; bukti HTTP otomatis menyamarkan header/field rahasia. Data uji berawalan kode tiket (rilis: `vX.Y.Z`). Live hanya method aman.
+**Kredensial** dibaca dari `qa.env` lokal yang di-gitignore dan tidak pernah ditulis ke dokumen, platform tiket, atau MR; bukti HTTP otomatis menyamarkan header/field rahasia. Data uji berawalan kode tiket (rilis: `vX.Y.Z`). Live hanya method aman.
 
 ---
 [← kembali ke README](../README.md)

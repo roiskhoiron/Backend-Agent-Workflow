@@ -63,7 +63,7 @@ mv "$tmp" "$S"
 
 mkdir -p "$DEST/.agent-workflow/logs"
 T="$REPO/templates/claude-global.md"
-if [ -f "$T" ] && ! grep -qs '^# Jira agent workflow (Backend)' "$C/CLAUDE.md"; then
+if [ -f "$T" ] && ! grep -qsE '^# (Jira agent workflow \(Backend\)|Agent workflow Backend)' "$C/CLAUDE.md"; then
   { [ -s "$C/CLAUDE.md" ] && echo; cat "$T"; } >> "$C/CLAUDE.md"
 fi
 [ -f "$DEST/.agent-workflow/prod-hosts.txt" ] || echo "Catatan: isi $DEST/.agent-workflow/prod-hosts.txt (host database/API production, satu per baris) supaya guard mengenalinya."

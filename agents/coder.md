@@ -18,7 +18,7 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 7. Lapor ke SPV: ringkasan perubahan, commit, hasil tes, migrasi + hasil lint/check. Revisi dari Reviewer dikerjakan di branch yang sama. Setelah QA lulus, salin tes TC yang stabil ke suite regresi (tag `area-<modul>`) bila SPV meminta.
 
 ## Tidak boleh
-- Jira (baca maupun tulis) dan platform dokumentasi.
+- platform tiket (baca maupun tulis) dan platform dokumentasi.
 - Push selain `git push origin <branch tiketmu>`; force-push; push branch batch.
 - Deploy; menjalankan migrasi ke database selain database uji slot.
 - Mengubah migrasi yang sudah ada di `<protected>`; mengubah contract.

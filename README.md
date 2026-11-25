@@ -1,6 +1,6 @@
 # Backend Agent Workflow
 
-Tim agen AI (Claude Code + Orca) yang mengerjakan tiket Jira di proyek **Backend**: mengecek tiket, menulis migrasi database dan kode, menguji API, deploy ke server uji, membuat PR/MR, sampai menyiapkan rilis.
+Tim agen AI (Claude Code + Orca) yang mengerjakan tiket di proyek **Backend**: mengecek tiket, menulis migrasi database dan kode, menguji API, deploy ke server uji, membuat PR/MR, sampai menyiapkan rilis.
 
 Bayangkan sebuah tim kecil: ada **mandor** (SPV) yang membagi tugas, **programmer** yang menulis kode, **reviewer** yang memeriksa, **QA** yang menguji, dan **petugas rilis** yang deploy dan membuat PR. Kamu cukup mengetik satu perintah; tim agen bekerja, lalu bertanya kepadamu hanya untuk keputusan penting.
 
@@ -11,7 +11,7 @@ Bayangkan sebuah tim kecil: ada **mandor** (SPV) yang membagi tugas, **programme
 1. [Apa bedanya dengan workflow Mobile?](#apa-bedanya-dengan-workflow-mobile)
 2. [Yang perlu disiapkan](#yang-perlu-disiapkan) dan [syarat stack](#syarat-stack-spec-openapi-dari-kode)
 3. [Pasang (5 menit)](#pasang-5-menit)
-4. [Setup pertama per project](#setup-pertama-per-project)
+4. [Setup pertama per project](#setup-pertama-per-project), termasuk [memilih platform tiket](#platform-tiket-pilih-sekali)
 5. [Lima perintah](#lima-perintah)
 6. [Contoh sehari-hari](#contoh-sehari-hari)
 7. [Yang tidak pernah dilakukan agen](#yang-tidak-pernah-dilakukan-agen)
@@ -39,11 +39,12 @@ Bayangkan sebuah tim kecil: ada **mandor** (SPV) yang membagi tugas, **programme
 | Docker | database uji sekali pakai per tiket |
 | **Stack Backend yang bisa mengekspor spec OpenAPI 3.x dari kode** | syarat wajib, lihat [Syarat stack](#syarat-stack-spec-openapi-dari-kode) |
 | `gh` (GitHub) atau `glab` (GitLab), sudah login | PR/MR |
-| Konektor **Atlassian** (Jira) di Claude | membaca, mengomentari, dan menggeser tiket |
+| Satu **platform tiket**: GitHub Issues + Projects, GitLab issue board, atau Jira | tempat tiket dibaca, dikomentari, dan digeser statusnya ([pilihannya](#platform-tiket-pilih-sekali)) |
 
 | Disarankan | Untuk apa |
 |---|---|
 | `schemathesis`, verifier Pact, `oasdiff` | menguji contract API dan mendeteksi perubahan yang merusak klien |
+| Konektor **Atlassian** | hanya bila platform tiketnya Jira (GitHub/GitLab cukup `gh`/`glab`) |
 | Konektor **Claude Docs** | bila laporan ingin di Claude Docs, bukan di repo |
 
 Alat yang belum terpasang tidak membuat workflow gagal: test case terkait ditandai **Tertahan** dan agen memberi tahu.
@@ -79,14 +80,26 @@ Detail: [docs/pasang.md](docs/pasang.md).
 
 Cukup sekali. Sebagian besar ditanyakan agen sendiri saat pertama dipakai.
 
+### Platform tiket: pilih sekali
+Workflow ini **tidak memilihkan platform tiket**. Defaultnya kosong (*none*); di perintah pertama, agen berhenti dan **bertanya kepadamu** dulu, lalu mengingat jawabannya untuk project itu.
+
+| Pilihan | Cocok bila | Butuh |
+|---|---|---|
+| **GitHub Issues + GitHub Projects** | repo di GitHub, belum punya board (saran bila bingung) | `gh` sudah login |
+| **GitLab Issues + issue board** | repo di GitLab, belum punya board (saran bila bingung) | `glab` sudah login |
+| **Jira** | tim sudah memakai Jira | konektor Atlassian di Claude |
+
+Kode tiket selalu berbentuk `PREFIX-nomor` (mis. `API-123`). Di GitHub/GitLab, `API-123` berarti issue `#123`; prefix-nya kamu tentukan sekali. Kamu boleh juga mengetik `#123` atau link issue.
+
+### Langkah lainnya
 1. **Host production** (wajib, diisi kamu sendiri): tulis host database dan API production, satu per baris, ke `~/.agent-workflow/prod-hosts.txt`. Pagar keamanan memakai daftar ini untuk menolak akses agen ke production.
    ```text
    db.prod.contoh.com
    api.contoh.com
    ```
 2. **Akun uji**: salin `templates/qa.env.example` ke root project sebagai `qa.env`, tambahkan `qa.env` ke `.gitignore` **lebih dulu**, lalu isi nilainya.
-3. **Status Jira**: saat pertama menggeser tiket, agen menampilkan daftar status dan meminta kamu memilih id untuk Todo, In Progress, dan Ready To Review (Done tidak pernah).
-4. **Memory project**: agen bertanya sekali lalu mengingat: branch produksi/integrasi, URL server dev/beta/live, perintah tes/migrasi/deploy/**ekspor spec OpenAPI**, engine database, lokasi spec OpenAPI, klien yang memakai API, dan siapa yang menjalankan migrasi production. Jawabannya juga diberikan sebagai blok `## Catatan agen` untuk kamu commit ke `CLAUDE.md` project.
+3. **Kolom/status board**: saat pertama menggeser tiket, agen menampilkan status yang ada di board-mu (kolom Status GitHub Projects, label GitLab, atau status Jira) dan memintamu memilih yang dipakai untuk Todo, In Progress, dan Ready To Review. Done tidak pernah: menutup tiket selalu tugas manusia.
+4. **Memory project**: agen bertanya sekali lalu mengingat: platform tiket, branch produksi/integrasi, URL server dev/beta/live, perintah tes/migrasi/deploy/**ekspor spec OpenAPI**, engine database, lokasi spec OpenAPI, klien yang memakai API, dan siapa yang menjalankan migrasi production. Jawabannya juga diberikan sebagai blok `## Catatan agen` untuk kamu commit ke `CLAUDE.md` project.
 
 ## Lima perintah
 
@@ -94,7 +107,7 @@ Ketik di Claude Code, di dalam terminal Orca. Alurnya mengikuti papan kanban: **
 
 | Perintah | Kapan dipakai | Hasilnya |
 |---|---|---|
-| `/validate-tiket KODE` | Tiket baru di Todo | Laporan layak/tidak + bukti, komentar Jira, tiket ke In Progress bila layak |
+| `/validate-tiket KODE` | Tiket baru di Todo | Laporan layak/tidak + bukti, komentar tiket, tiket ke In Progress bila layak |
 | `/develop-tiket KODE` | Tiket di In Progress | Migrasi + kode + tes, deploy ke dev (dan beta), PR/MR, tiket ke Ready To Review |
 | `/rilis-tiket KODE` | QA sudah memberi feedback | Kembalikan ke Todo, deploy ke env lain, atau merge PR tiket (dengan izinmu) |
 | `/branch-manager --rilis KODE` | Saatnya rilis versi | Laporan rilis, regresi di beta, PR rilis, tag setelah kamu merge |
@@ -132,7 +145,7 @@ flowchart LR
   B --> C[Migrasi naik/turun] --> D[Kode + tes] --> E{Review}
   E -- revisi --> D
   E -- bersih --> F[Uji lokal + contract] --> G[Deploy dev, uji di server]
-  G --> H[PR siap review + komentar Jira] --> I[Ready To Review]
+  G --> H[PR siap review + komentar tiket] --> I[Ready To Review]
 ```
 
 Agen akan **berhenti dan bertanya** bila: deploy production, migrasi yang menghapus/mengubah data, perubahan yang merusak aplikasi versi lama, contract API tidak bisa dipenuhi, atau kredensial tidak ditemukan.
@@ -145,9 +158,9 @@ Dijaga oleh pagar keamanan (`hooks/guard.sh`) dan aturan tim:
 - Menulis data ke server production lewat HTTP (di live hanya membaca).
 - Menghapus container/volume Docker milikmu (hanya database uji buatannya sendiri).
 - Push ke repo utama (`upstream`), force-push branch utama, atau menimpa tag.
-- Memindah tiket ke **Done**, atau merge PR rilis.
+- Memindah tiket ke **Done** atau menutup issue, atau merge PR rilis. Agen juga tidak menulis `Closes #123` di PR, karena GitHub/GitLab akan menutup issue otomatis saat merge.
 - Deploy production tanpa izinmu untuk deploy itu.
-- Menulis password/token ke laporan, Jira, atau PR.
+- Menulis password/token ke laporan, platform tiket, atau PR.
 
 Catatan jujur: pagar hanya membaca **teks perintah**. Alamat production yang tersembunyi di `.env` tidak terlihat olehnya, jadi aturan tim tetap berlaku. Detail: [docs/pagar-keamanan.md](docs/pagar-keamanan.md).
 
@@ -165,6 +178,7 @@ Catatan jujur: pagar hanya membaca **teks perintah**. Alamat production yang ter
 | **Migrasi naik/turun** | Perubahan struktur database dan kebalikannya |
 | **Laporan** | Default: file Markdown di branch `agent-docs` repo kamu; bisa juga Claude Docs |
 | **`origin` / `upstream`** | `origin` = fork kita (agen boleh push branch); `upstream` = repo utama (hanya lewat PR/MR) |
+| **Platform tiket** | Tempat tiket hidup: GitHub Projects, GitLab board, atau Jira. Dipilih sekali per project |
 | **TC / AC** | Test case / acceptance criteria. Hasil TC: Lulus, Gagal, atau Tertahan (dengan alasan) |
 
 ## Panduan lanjutan
@@ -174,7 +188,7 @@ Catatan jujur: pagar hanya membaca **teks perintah**. Alamat production yang ter
 | [Alur kerja](docs/alur-kerja.md) | Tiap perintah langkah demi langkah, semua flag, urutan rilis dengan klien |
 | [Tim agen](docs/tim-agen.md) | Peran, nama, dan model tiap agen |
 | [Pagar keamanan](docs/pagar-keamanan.md) | Yang diblokir, kapan agen bertanya |
-| [Alat](docs/alat.md) | Skrip `bin/`, skill internal, alat uji, konektor (Atlassian, Claude Docs), pembersihan otomatis |
+| [Alat](docs/alat.md) | Skrip `bin/`, skill internal, alat uji, platform tiket (GitHub, GitLab, Atlassian/Jira), Claude Docs, pembersihan otomatis |
 | [Pasang](docs/pasang.md) | Instalasi lengkap dan setup per project |
 | [Masalah umum](docs/masalah-umum.md) | Gejala dan cara mengatasinya |
 | [Rancangan](docs/design-summary.md) | Keputusan implementasi, alasannya, dan yang masih terbuka |
@@ -184,7 +198,7 @@ Catatan jujur: pagar hanya membaca **teks perintah**. Alamat production yang ter
 | Folder | Isi |
 |---|---|
 | `skills/<perintah>/SKILL.md` | Langkah tiap perintah (5) dan skill internal Backend (7) |
-| `skills/_shared/` | Aturan bersama: `rules.md`, `environments.md`, `credentials.md`, `deploy-release.md`, `report-format.md` |
+| `skills/_shared/` | Aturan bersama: `rules.md`, `ticket-platform.md`, `environments.md`, `credentials.md`, `deploy-release.md`, `report-format.md` |
 | `agents/` | Peran agen (model, tugas, larangan) |
 | `bin/` | Skrip pembantu: `lock.sh`, `env-slot.sh`, `test-db.sh`, `migration-lint.sh`, `migration-check.sh`, `http-evidence.sh`, `openapi-check.sh`, `docs-publish.sh`, `release-trace.sh`, `manifest-check.sh`, `audit-mode.sh`, `housekeeping.sh` |
 | `hooks/guard.sh` | Pagar keamanan |

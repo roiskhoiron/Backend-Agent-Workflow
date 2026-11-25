@@ -18,7 +18,7 @@ assert_eq 1 "$(jq '[.hooks.PreToolUse[]|select(.hooks[0].command|test("guard.sh"
 assert_eq 1 "$(jq '[.hooks.PreToolUse[]|select(.hooks[0].command=="rtk hook claude")]|length' "$S")" "other hook preserved"
 assert_eq "\"$REPO/hooks/guard.sh\"" "$(jq -r '.hooks.PreToolUse[]|select(.hooks[0].command|test("guard.sh"))|.hooks[0].command' "$S")" "guard path quoted, from repo"
 assert_eq yes "$([ -f "$S.bak-backend-workflow" ] && echo yes || echo no)" "backup made"
-assert_eq 1 "$(grep -c '^# Jira agent workflow (Backend)' "$H/.claude/CLAUDE.md")" "global CLAUDE.md section once"
+assert_eq 1 "$(grep -c '^# Agent workflow Backend' "$H/.claude/CLAUDE.md")" "global CLAUDE.md section once"
 assert_eq yes "$([ -d "$H/.agent-workflow/logs" ] && echo yes || echo no)" "state logs dir"
 c=$(jq -r '.hooks.PreToolUse[]|select(.hooks[0].command|test("guard.sh"))|.hooks[0].command' "$S")
 assert_eq 0 "$(echo '{"tool_name":"Read"}' | sh -c "$c" >/dev/null 2>&1; echo $?)" "hook command runs via shell"

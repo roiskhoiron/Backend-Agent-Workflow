@@ -11,7 +11,9 @@
 | `docs-publish.sh put` gagal push | Branch `agent-docs` di `origin` maju dari mesin lain; skrip sudah rebase sekali. Masih gagal → cek akses push ke fork |
 | "Teammate mode mati" | Buka ulang Claude dengan `claude --teammate-mode auto` atau `/config` → Teammate mode → `auto` |
 | "Jalankan dari workspace domain" | `/develop-tiket` dijalankan dari root project. Buka workspace domain di Orca |
-| "belum punya daftar transisi" | Project baru: agen menunjukkan daftar status, kamu pilih id Todo, In Progress, Ready To Review |
+| Agen bertanya "platform tiket mana?" | Memory project masih none. Pilih GitHub Projects, GitLab board, atau Jira (bingung → board bawaan forge repo); dijawab sekali per project |
+| "belum punya daftar transisi/status" | Board baru: agen menunjukkan status board, kamu pilih Todo, In Progress, Ready To Review (`skills/_shared/ticket-platform.md`) |
+| Guard menolak `gh issue close` / label Done | Disengaja: menutup tiket = Done, hanya manusia |
 | Schemathesis / oasdiff / verifier Pact tidak ada | TC terkait **Tertahan** + alasan; pasang alatnya lalu ulangi. Agen tidak memasang alat global tanpa izin |
 | `migration-lint.sh` menandai migrasi yang sebenarnya aman | Pencocokan berbasis pola bisa keliru. Agen tetap bertanya; kamu yang memutuskan, keputusan dicatat di PR/MR |
 | `install.sh` menolak: sudah terhubung ke repo lain | Workflow Mobile terpasang di mesin ini. Pilih satu, atau `./install.sh --force` |

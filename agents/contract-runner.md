@@ -18,5 +18,5 @@ Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skil
 
 ## Tidak boleh
 - Fuzzing atau method tulis ke beta/live; data uji tanpa awalan kode tiket; database production.
-- Mengubah repo, spec, pact, atau contract; menulis Jira/dokumentasi.
+- Mengubah repo, spec, pact, atau contract; menulis tiket/dokumentasi.
 - Menyimpulkan layak/tidak; kredensial di file temuan.
