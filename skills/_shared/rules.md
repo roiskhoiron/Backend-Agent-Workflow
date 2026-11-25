@@ -140,7 +140,7 @@ Owner kunci tetap `<KODE>-<peran><n>` (mis. `PROJ-12-qa1`, `PROJ-12-release1`).
 - Branch kerja: `feature/` `fix/` `hotfix/` `docs/` `chore/` + kode tiket (mis. `fix/PROJ-1234`), dibuat di downstream.
 - Commit menyebut kode tiket (dibaca `release-trace.sh`). File migrasi ikut commit yang sama dengan kode yang memakainya.
 - Tag versi `vX.Y.Z` (beranotasi) dibuat Release setelah PR rilis di-merge manusia, di commit hasil merge, lalu di-push ke `upstream` dan `origin`. Tag tidak pernah di-force atau dihapus. Versi Backend dikenali dari **tag + hash commit**, tidak ada nomor build.
-- Push hanya oleh Release (branch ke `origin`; tag versi ke `upstream` dan `origin`), kecuali Coder push branch tiketnya dan agen management push branch dokumen `agent-docs` ke `origin` (`docs-publish.sh`).
+- Push hanya oleh Release (branch ke `origin`; tag versi ke `upstream` dan `origin`), kecuali Coder push branch tiketnya dan sesi utama (Validator/SPV/Release) push branch dokumen `agent-docs` ke `origin` lewat `docs-publish.sh put`. Teammate (termasuk Planner) tidak menjalankan `docs-publish.sh put`: mereka menyerahkan file Markdown ke SPV untuk dipublikasikan.
 
 ## Setup transisi Jira (sekali per project)
 Hook menolak transisi sebelum project punya daftar. Jika ditolak "belum punya daftar transisi":

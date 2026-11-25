@@ -55,12 +55,12 @@ for r in $(cat $files | grep -oE '~/.claude/agents/\{[a-z,-]+\}\.md' | sort -u);
   done
 done
 for r in $(cat $files | grep -oE '~/.claude/skills/[a-z-]+/SKILL\.md' | sort -u); do
-  n=${r#~/.claude/skills/}; n=${n%/SKILL.md}
+  n=${r#"~/.claude/skills/"}; n=${n%/SKILL.md}
   assert_eq yes "$([ -f "$REPO/skills/$n/SKILL.md" ] && echo yes || echo no)" "ref skill $n exists"
 done
 # a skill invoked as `/name` must exist (or be a known external command)
 EXTERNAL="modify-epic-ticket initiate-epic-ticket config"
-for n in $(cat $files | grep -oE '`/[a-z][a-z-]+' | tr -d '`/' | sort -u); do
+for n in $(cat $files | grep -oE '`/[a-z][a-z-]+[ `]' | tr -d '`/ ' | sort -u); do
   case " $EXTERNAL " in *" $n "*) continue;; esac
   assert_eq yes "$([ -d "$REPO/skills/$n" ] && echo yes || echo no)" "skill /$n exists"
 done

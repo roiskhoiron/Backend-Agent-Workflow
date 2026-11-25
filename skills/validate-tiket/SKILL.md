@@ -27,7 +27,7 @@ flowchart LR
    - `~/.agent-workflow/jira-transitions.json` punya entri project; belum → "Setup transisi Jira" di `rules.md`.
    - Memory project: Server per env, Contract, Klien, Platform dokumentasi (belum → periksa, tanya sekali, simpan). `prod-hosts.txt` belum ada → minta user mengisinya sebelum menyentuh beta/live.
    - Akun uji (`credentials.md`) bila ada tiket bug; tidak ditemukan → berhenti & tanya.
-   - **Sinkron sumber (sekali per sesi):** business discovery, contract (spec OpenAPI + `contract.json`/katalog contract dari workflow produksi tiket), blueprint, ADR. Repo yang sama dengan kode → `git fetch upstream` lalu baca dari `upstream/<protected>` tanpa checkout; repo dokumen terpisah → `git pull` di checkout dokumen itu (bukan worktree primary). Lalu `graphify update` bila project memakainya. Catat ref yang dibaca.
+   - **Sinkron sumber (sekali per sesi):** business discovery, contract (spec OpenAPI + `contract.json` + katalog contract dari workflow produksi tiket), blueprint, ADR. Repo yang sama dengan kode → `git fetch upstream` lalu baca dari `upstream/<protected>` tanpa checkout; repo dokumen terpisah → `git pull` di checkout dokumen itu (bukan worktree primary). Lalu `graphify update` bila project memakainya. Catat ref yang dibaca.
    - Platform `repo`: `docs-publish.sh init <checkout>` sekali → worktree dokumen.
 2. **Per tiket, berurutan.** Ulangi 3–8 untuk tiap KODE; satu laporan per tiket.
 3. **Baca** tiket, komentar, dan link terkait (`mcp__claude_ai_Atlassian__getJiraIssue`). Catat AC, endpoint, versi yang tertulis, dan tiket contract induknya (tiket ini sering berasal dari workflow produksi tiket; tiket tulisan manual juga diterima).
