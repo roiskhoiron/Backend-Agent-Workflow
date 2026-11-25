@@ -1,81 +1,182 @@
-# backend-agent-workflow
+# Backend Agent Workflow
 
-Tim agen Claude Code + Orca untuk mengerjakan tiket Jira di proyek **Backend**: dari cek tiket, migrasi database, kode, uji integrasi + contract, deploy dev/beta, sampai PR/MR dan rilis. Kerangkanya sama dengan [mobiledev-agent-workflow](https://github.com/roiskhoiron/mobiledev-agent-workflow) (empat perintah, tim agen, worktree), dengan tiga perbedaan pokok: **tidak ada layar** untuk diuji, **ada migrasi database**, dan Backend adalah **penyedia contract** yang dipakai Mobile dan Frontend web. Tiket masuk dari [workflow produksi tiket](https://github.com/roiskhoiron/sdd-agent-workflow) (atau ditulis manual); memindahkan tiket ke **Done** tetap tugas manusia.
+Tim agen AI (Claude Code + Orca) yang mengerjakan tiket Jira di proyek **Backend**: mengecek tiket, menulis migrasi database dan kode, menguji API, deploy ke server uji, membuat PR/MR, sampai menyiapkan rilis.
 
-Status: **v1 kerangka terpasang**, belum diuji di tiket nyata. Stack project (bahasa, framework, database) dibaca dari memory project, bukan ditulis di sini.
+Bayangkan sebuah tim kecil: ada **mandor** (SPV) yang membagi tugas, **programmer** yang menulis kode, **reviewer** yang memeriksa, **QA** yang menguji, dan **petugas rilis** yang deploy dan membuat PR. Kamu cukup mengetik satu perintah; tim agen bekerja, lalu bertanya kepadamu hanya untuk keputusan penting.
+
+> Status: **v1**, kerangka lengkap dan teruji dengan tes otomatis, **belum dicoba di tiket nyata**.
+> Workflow saudara: [mobiledev-agent-workflow](https://github.com/roiskhoiron/mobiledev-agent-workflow) (aplikasi mobile) dan [sdd-agent-workflow](https://github.com/roiskhoiron/sdd-agent-workflow) (pembuat tiket).
 
 ## Daftar isi
-1. [Mulai cepat](#mulai-cepat) dan [istilah penting](#istilah-penting) (di halaman ini)
-2. [Alur kerja + papan kanban](docs/alur-kerja.md): `/validate-tiket`, `/develop-tiket`, `/rilis-tiket`, `/branch-manager`, `/audit-issue`
-3. [Tim agen](docs/tim-agen.md): peran, nama, model
-4. [Pagar keamanan](docs/pagar-keamanan.md): yang diblokir guard (termasuk database production), kapan agen berhenti dan bertanya
-5. [Alat (tools) + MCP](docs/alat.md): skrip `bin/`, skill internal Backend, alat uji, pembersihan otomatis
-6. [Pasang di komputer lain](docs/pasang.md)
-7. [Masalah umum](docs/masalah-umum.md)
-8. [Rancangan dan keputusan implementasi](docs/design-summary.md)
-9. [Isi repo](#isi-repo) dan [merawat dokumen](#merawat-dokumen-ini) (di halaman ini)
+1. [Apa bedanya dengan workflow Mobile?](#apa-bedanya-dengan-workflow-mobile)
+2. [Yang perlu disiapkan](#yang-perlu-disiapkan)
+3. [Pasang (5 menit)](#pasang-5-menit)
+4. [Setup pertama per project](#setup-pertama-per-project)
+5. [Lima perintah](#lima-perintah)
+6. [Contoh sehari-hari](#contoh-sehari-hari)
+7. [Yang tidak pernah dilakukan agen](#yang-tidak-pernah-dilakukan-agen)
+8. [Istilah penting](#istilah-penting)
+9. [Panduan lanjutan](#panduan-lanjutan)
+10. [Isi repo dan merawat dokumen](#isi-repo)
 
-## Mulai cepat
+## Apa bedanya dengan workflow Mobile?
+
+| | Mobile | Backend (repo ini) |
+|---|---|---|
+| Tempat uji | HP, emulator, simulator | Layanan lokal + server dev/beta: request API, log, database uji |
+| Bukti di laporan | Screenshot bertanda kotak merah | Request, response, potongan log, hasil query (rahasia otomatis disamarkan) |
+| Langkah tambahan | — | **Migrasi database** naik dan turun, diuji bolak-balik |
+| Posisi terhadap contract API | Pemakai | **Penyedia**: perubahan tidak boleh merusak aplikasi versi lama |
+| Hasil kerja | Build ke Firebase/TestFlight | Deploy ke dev, beta, (production dengan izin) |
+| Sumber daya yang dibagi | Device | Port + database uji (satu per tiket), server dev/beta (satu deploy pada satu waktu) |
+
+## Yang perlu disiapkan
+
+| Wajib | Untuk apa |
+|---|---|
+| [Claude Code](https://code.claude.com) + Orca (sama dengan workflow Mobile) | menjalankan tim agen |
+| `git`, `jq`, `python3`, `bash` | skrip dan pagar keamanan |
+| Docker | database uji sekali pakai per tiket |
+| `gh` (GitHub) atau `glab` (GitLab), sudah login | PR/MR |
+| Konektor **Atlassian** (Jira) di Claude | membaca, mengomentari, dan menggeser tiket |
+
+| Disarankan | Untuk apa |
+|---|---|
+| `schemathesis`, verifier Pact, `oasdiff` | menguji contract API dan mendeteksi perubahan yang merusak klien |
+| Konektor **Claude Docs** | bila laporan ingin di Claude Docs, bukan di repo |
+
+Alat yang belum terpasang tidak membuat workflow gagal: test case terkait ditandai **Tertahan** dan agen memberi tahu.
+
+## Pasang (5 menit)
 
 ```bash
-git clone <repo ini> && cd backend-agent-workflow && ./install.sh
-bash tests/run.sh   # semua tes skrip + guard
+git clone https://github.com/roiskhoiron/Backend-Agent-Workflow.git
+cd Backend-Agent-Workflow
+./install.sh          # tautkan skill + agen ke ~/.claude dan pasang pagar keamanan
+bash tests/run.sh     # pastikan semua tes lulus (ALL PASS)
 ```
 
-Lalu ketik di Claude Code, di dalam terminal Orca:
+- `install.sh` aman dijalankan berulang. Pengaturan lama dicadangkan ke `~/.claude/settings.json.bak-backend-workflow`.
+- **Sudah memasang workflow Mobile di komputer yang sama?** Nama perintahnya sama (`/develop-tiket`, dst.), jadi `install.sh` berhenti dan memberi tahu. Satu komputer = satu workflow; pakai `./install.sh --force` bila memang ingin beralih ke Backend.
 
-| Perintah | Gunanya | Jalankan dari |
-| --- | --- | --- |
-| `/validate-tiket KODE... [--solo\|--tim]` | Cek tiket layak dikerjakan; bug direproduksi lewat request API dan log. `--tim`: PdM, Contract Runner, HoE, PjM (+ Spesialis eskalasi). Hasil: laporan berisi bukti request/response + komentar Jira | mana saja |
-| `/develop-tiket KODE... [--solo\|--tim] [--batch\|--separate]` | Rencana, migrasi naik/turun, kode (TDD), review, uji integrasi + Schemathesis + Pact penyedia, deploy dev (+ beta), PR/MR, komentar Jira, tiket ke Ready To Review | workspace domain |
-| `/rilis-tiket KODE...` | Tindak lanjut feedback QA per tiket: kembalikan ke Todo, deploy ke env lain (beta; production dengan izin), atau audit + merge PR/MR tiket | root project atau domain |
-| `/branch-manager --rilis KODE` | Rilis per versi: tracing perubahan, migrasi + kompatibilitas klien dalam rilis, regresi penuh di beta, laporan rilis, PR rilis, tag setelah PR rilis di-merge manusia, deploy live (izin/pipeline) + smoke live | root project atau domain |
-| `/audit-issue "teks" [--solo\|--tim] [lampiran...]` | Telusuri keluhan yang belum jadi tiket, **hanya-baca**. Hasil: laporan + saran tiket | mana saja |
+Detail: [docs/pasang.md](docs/pasang.md).
 
-Contoh:
+## Setup pertama per project
+
+Cukup sekali. Sebagian besar ditanyakan agen sendiri saat pertama dipakai.
+
+1. **Host production** (wajib, diisi kamu sendiri): tulis host database dan API production, satu per baris, ke `~/.agent-workflow/prod-hosts.txt`. Pagar keamanan memakai daftar ini untuk menolak akses agen ke production.
+   ```text
+   db.prod.contoh.com
+   api.contoh.com
+   ```
+2. **Akun uji**: salin `templates/qa.env.example` ke root project sebagai `qa.env`, tambahkan `qa.env` ke `.gitignore` **lebih dulu**, lalu isi nilainya.
+3. **Status Jira**: saat pertama menggeser tiket, agen menampilkan daftar status dan meminta kamu memilih id untuk Todo, In Progress, dan Ready To Review (Done tidak pernah).
+4. **Memory project**: agen bertanya sekali lalu mengingat: branch produksi/integrasi, URL server dev/beta/live, perintah tes/migrasi/deploy, engine database, lokasi spec OpenAPI, klien yang memakai API, dan siapa yang menjalankan migrasi production. Jawabannya juga diberikan sebagai blok `## Catatan agen` untuk kamu commit ke `CLAUDE.md` project.
+
+## Lima perintah
+
+Ketik di Claude Code, di dalam terminal Orca. Alurnya mengikuti papan kanban: **Todo → In Progress → Ready To Review → Done** (Done selalu oleh manusia).
+
+| Perintah | Kapan dipakai | Hasilnya |
+|---|---|---|
+| `/validate-tiket KODE` | Tiket baru di Todo | Laporan layak/tidak + bukti, komentar Jira, tiket ke In Progress bila layak |
+| `/develop-tiket KODE` | Tiket di In Progress | Migrasi + kode + tes, deploy ke dev (dan beta), PR/MR, tiket ke Ready To Review |
+| `/rilis-tiket KODE` | QA sudah memberi feedback | Kembalikan ke Todo, deploy ke env lain, atau merge PR tiket (dengan izinmu) |
+| `/branch-manager --rilis KODE` | Saatnya rilis versi | Laporan rilis, regresi di beta, PR rilis, tag setelah kamu merge |
+| `/audit-issue "keluhan"` | Ada keluhan tapi belum jadi tiket | Laporan penelusuran + saran tiket, **tanpa mengubah apa pun** |
+
+Flag yang sering dipakai:
+
+| Flag | Arti |
+|---|---|
+| `--solo` | Satu agen mengerjakan semua (hemat, untuk tiket kecil) |
+| `--tim` | Dibagi ke beberapa agen (tiket besar, ada migrasi, banyak endpoint) |
+| `--batch` (default) | Beberapa tiket digabung: satu deploy dev, satu putaran uji |
+| `--separate` | Tiap tiket jalan dan selesai sendiri |
+
+Tanpa flag, agen memilih sendiri. Alur lengkap tiap perintah: [docs/alur-kerja.md](docs/alur-kerja.md).
+
+Perintah di atas memanggil **skill internal** Backend yang tidak perlu kamu ketik: `/reproduce-request`, `/check-compat`, `/write-migration`, `/test-integration`, `/verify-provider`, `/deploy-service`, `/deploy-variant` ([docs/alat.md](docs/alat.md)).
+
+## Contoh sehari-hari
+
 ```text
-/validate-tiket API-1234
-/develop-tiket API-1234 API-1240 --tim
-/develop-tiket API-1300 --solo --separate
-/audit-issue "checkout kadang 500 setelah update v2.3" --solo
-/rilis-tiket API-1234
-/branch-manager --rilis API-1400
+/validate-tiket API-1234                 # cek dulu: layak dikerjakan?
+/develop-tiket API-1234                  # kerjakan sampai Ready To Review
+/develop-tiket API-1240 API-1241 --tim   # dua tiket sekaligus, dibagi ke tim
+/rilis-tiket API-1234                    # setelah QA memberi feedback
+/branch-manager --rilis API-1400         # siapkan rilis versi
+/audit-issue "checkout kadang error 500 sejak v2.3" --solo
 ```
 
-Skill internal khas Backend dipanggil oleh perintah di atas, tidak diketik sendiri: `/reproduce-request`, `/check-compat`, `/write-migration`, `/test-integration`, `/verify-provider`, `/deploy-service`, `/deploy-variant` ([docs/alat.md](docs/alat.md)).
+Yang terjadi saat `/develop-tiket API-1234`, singkatnya:
+
+```mermaid
+flowchart LR
+  A[Baca tiket + laporan validasi] --> B[Rencana + slot env sendiri]
+  B --> C[Migrasi naik/turun] --> D[Kode + tes] --> E{Review}
+  E -- revisi --> D
+  E -- bersih --> F[Uji lokal + contract] --> G[Deploy dev, uji di server]
+  G --> H[PR siap review + komentar Jira] --> I[Ready To Review]
+```
+
+Agen akan **berhenti dan bertanya** bila: deploy production, migrasi yang menghapus/mengubah data, perubahan yang merusak aplikasi versi lama, contract API tidak bisa dipenuhi, atau kredensial tidak ditemukan.
+
+## Yang tidak pernah dilakukan agen
+
+Dijaga oleh pagar keamanan (`hooks/guard.sh`) dan aturan tim:
+
+- Menyentuh **database production** atau menjalankan migrasi dengan env production.
+- Menulis data ke server production lewat HTTP (di live hanya membaca).
+- Menghapus container/volume Docker milikmu (hanya database uji buatannya sendiri).
+- Push ke repo utama (`upstream`), force-push branch utama, atau menimpa tag.
+- Memindah tiket ke **Done**, atau merge PR rilis.
+- Deploy production tanpa izinmu untuk deploy itu.
+- Menulis password/token ke laporan, Jira, atau PR.
+
+Catatan jujur: pagar hanya membaca **teks perintah**. Alamat production yang tersembunyi di `.env` tidak terlihat olehnya, jadi aturan tim tetap berlaku. Detail: [docs/pagar-keamanan.md](docs/pagar-keamanan.md).
 
 ## Istilah penting
 
 | Istilah | Penjelasan sederhana |
-| --- | --- |
+|---|---|
 | **SPV** | Agen "mandor": membaca tiket, membagi tugas, memutuskan tiket selesai |
 | **Workspace domain** | Workspace Orca yang kamu buka untuk kerja kode. Root project hanya untuk audit, tanya, dan rilis |
-| **Worktree tiket** | Salinan kerja repo khusus satu tiket, folder `<repo>-<nomor>` di sebelah checkout domain |
-| **Slot env** | Jatah port layanan + database uji (container) untuk satu worktree, supaya agen paralel tidak bentrok. Pengganti "jatah device" di Mobile |
-| **Database uji** | Database sekali pakai di container (`agentdb-<worktree>`), satu per worktree; satu-satunya database yang boleh ditulis tes dan migrasi |
-| **Kunci `deploy:<env>`** | Server dev/beta dipakai bersama: deploy + uji di sana satu tiket pada satu waktu |
-| **Contract** | Spec OpenAPI yang disepakati Backend dan klien. Backend = penyedia; perubahan contract lewat workflow produksi tiket (`/modify-epic-ticket`), bukan di sini |
-| **Kompatibilitas klien** | Aplikasi mobile versi lama tidak bisa dipaksa update: perubahan yang memutusnya dipecah tiga tahap (tambah baru → klien pindah → hapus lama) |
-| **Migrasi naik/turun** | Perubahan skema database dan kebalikannya; diuji bolak-balik di database uji. Migrasi production dijalankan manusia atau pipeline |
-| **Bukti tekstual** | Request, response, potongan log, hasil query (rahasia disamarkan). Pengganti screenshot bertanda |
-| **Platform dokumentasi** | Tempat laporan: default Markdown di branch `agent-docs` (`repo`), atau Claude Docs |
-| **Guard** | Hook yang memblokir perintah berbahaya sebelum dijalankan |
-| **Downstream / upstream** | `origin` = fork kita (boleh push branch); `upstream` = repo utama (hanya lewat PR/MR) |
-| **TC / AC** | Test case / acceptance criteria tiket. Hasil TC: Lulus, Gagal, atau Tertahan (dengan alasan) |
+| **Worktree tiket** | Salinan kerja repo khusus satu tiket, folder `<repo>-<nomor>` di sebelah checkout |
+| **Slot env** | Jatah port + database uji untuk satu tiket, supaya agen yang bekerja paralel tidak bentrok |
+| **Database uji** | Database sekali pakai di Docker, satu per tiket; satu-satunya database yang ditulis tes dan migrasi |
+| **Contract** | Spec OpenAPI yang disepakati Backend dan aplikasi pemakainya |
+| **Kompatibilitas klien** | Aplikasi mobile versi lama tidak bisa dipaksa update, jadi perubahan yang merusaknya dipecah tiga tahap: tambah baru → klien pindah → hapus lama |
+| **Migrasi naik/turun** | Perubahan struktur database dan kebalikannya |
+| **Laporan** | Default: file Markdown di branch `agent-docs` repo kamu; bisa juga Claude Docs |
+| **`origin` / `upstream`** | `origin` = fork kita (agen boleh push branch); `upstream` = repo utama (hanya lewat PR/MR) |
+| **TC / AC** | Test case / acceptance criteria. Hasil TC: Lulus, Gagal, atau Tertahan (dengan alasan) |
+
+## Panduan lanjutan
+
+| Halaman | Isi |
+|---|---|
+| [Alur kerja](docs/alur-kerja.md) | Tiap perintah langkah demi langkah, semua flag, urutan rilis dengan klien |
+| [Tim agen](docs/tim-agen.md) | Peran, nama, dan model tiap agen |
+| [Pagar keamanan](docs/pagar-keamanan.md) | Yang diblokir, kapan agen bertanya |
+| [Alat](docs/alat.md) | Skrip `bin/`, skill internal, alat uji, konektor (Atlassian, Claude Docs), pembersihan otomatis |
+| [Pasang](docs/pasang.md) | Instalasi lengkap dan setup per project |
+| [Masalah umum](docs/masalah-umum.md) | Gejala dan cara mengatasinya |
+| [Rancangan](docs/design-summary.md) | Keputusan implementasi, alasannya, dan yang masih terbuka |
 
 ## Isi repo
 
 | Folder | Isi |
-| --- | --- |
-| `skills/<perintah>/SKILL.md` | Langkah tiap perintah (5 skill flow) dan 7 skill internal Backend |
-| `skills/_shared/` | Aturan bersama: `rules.md` (tim, guard, git, worktree, memory project), `environments.md` (slot env, database uji, server bersama, alat uji), `credentials.md`, `deploy-release.md`, `report-format.md` |
+|---|---|
+| `skills/<perintah>/SKILL.md` | Langkah tiap perintah (5) dan skill internal Backend (7) |
+| `skills/_shared/` | Aturan bersama: `rules.md`, `environments.md`, `credentials.md`, `deploy-release.md`, `report-format.md` |
 | `agents/` | Peran agen (model, tugas, larangan) |
-| `bin/` | Skrip pembantu (tabel di [docs/alat.md](docs/alat.md)) |
+| `bin/` | Skrip pembantu: `lock.sh`, `env-slot.sh`, `test-db.sh`, `migration-lint.sh`, `migration-check.sh`, `http-evidence.sh`, `docs-publish.sh`, `release-trace.sh`, `manifest-check.sh`, `audit-mode.sh`, `housekeeping.sh` |
 | `hooks/guard.sh` | Pagar keamanan |
 | `templates/` | `qa.env.example` (akun uji), bagian `CLAUDE.md` global |
-| `tests/` | Tes skrip & guard: `bash tests/run.sh` |
-| `docs/` | Panduan lengkap dan ringkasan rancangan |
+| `tests/` | Tes otomatis: `bash tests/run.sh` |
+| `docs/` | Panduan lanjutan |
 
-## Merawat dokumen ini
-
-README + folder `docs/` adalah pintu masuk untuk pemula. README tetap singkat; detail ada di `docs/<topik>.md`. **Setiap perubahan workflow atau alat wajib memperbarui README atau halaman `docs/` yang sesuai di commit yang sama.** `tests/readme_test.sh` gagal bila ada perintah, skill internal, skrip `bin/`, atau MCP yang belum disebut di README maupun `docs/*.md`. Detail teknis tetap di `skills/` dan `agents/`.
+### Merawat dokumen ini
+README untuk pemula: singkat, langsung ke inti. Detail ada di `docs/`. **Setiap perubahan perintah, skrip, atau aturan keamanan wajib memperbarui README atau halaman `docs/` yang sesuai di commit yang sama.** `tests/readme_test.sh` gagal bila ada perintah, skill, skrip `bin/`, atau konektor yang belum disebut.
