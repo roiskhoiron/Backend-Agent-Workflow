@@ -5,7 +5,7 @@ user-invocable: false
 ---
 Masukan dari SPV: KODE (atau daftar KODE batch), sumber (`--batch`: checkout domain di branch batch; `--separate`: worktree tiket), perintah deploy dev (memory project → Perintah project), cara cek versi (memory project → Server per env), nama QA penerima kunci.
 
-Baca dulu: `~/.claude/skills/_backend-workflow-shared/deploy-release.md`, `environments.md` → Server bersama.
+Baca dulu: `$AGENT_WORKFLOW_DIR/skills/_shared/deploy-release.md`, `environments.md` → Server bersama.
 
 ## Langkah
 1. **Kunci server:** `AGENT_LOCK_PID=$PPID "$AGENT_WORKFLOW_DIR/bin/lock.sh" acquire deploy:dev <KODE>-release1`. Exit 1 → ikuti "Kunci dipakai" (`environments.md`); tiket lain → lewat SPV tanya user.

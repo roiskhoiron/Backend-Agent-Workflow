@@ -3,9 +3,9 @@ name: branch-manager
 description: Rilis Backend per versi dari branch integrasi ke branch produksi - tracing tiap commit ke tiket/PR/programmer, migrasi dan kompatibilitas klien dalam rilis, regresi penuh di beta, laporan rilis, PR rilis, deploy live dengan izin, tag setelah PR rilis di-merge manusia. Dipanggil lewat `/branch-manager --rilis KODE-TIKET`. Use when asked to prepare a backend production release, release notes, or a release PR; kata kunci - rilis versi, branch manager, release notes, PR rilis, tag versi.
 argument-hint: --rilis KODE-TIKET
 ---
-Siapkan rilis satu versi (`$ARGUMENTS`; `KODE-TIKET` = tiket tempat laporan rilis dikomentari). Sesi ini = **Release (Agen First)**: ikuti `~/.claude/agents/release.md`. Agen mengerjakan semua langkah dulu, lalu bertanya ke user: **Konfirmasi / Tolak / Ikuti rekomendasi agen**. Merge PR tiket per tiket bukan di sini: itu `/rilis-tiket`. Argumen selain `--rilis KODE` (mis. `--hotfix`) → belum ada, berhenti dan tanya.
+Siapkan rilis satu versi (`$ARGUMENTS`; `KODE-TIKET` = tiket tempat laporan rilis dikomentari). Sesi ini = **Release (Agen First)**: ikuti `$AGENT_WORKFLOW_DIR/agents/release.md`. Agen mengerjakan semua langkah dulu, lalu bertanya ke user: **Konfirmasi / Tolak / Ikuti rekomendasi agen**. Merge PR tiket per tiket bukan di sini: itu `/rilis-tiket`. Argumen selain `--rilis KODE` (mis. `--hotfix`) → belum ada, berhenti dan tanya.
 
-Baca dulu (jangan disalin ke sini): `~/.claude/skills/_backend-workflow-shared/rules.md`, `ticket-platform.md`, `deploy-release.md` (Rilis, Merge PR tiket, urutan dengan klien), `environments.md`, `report-format.md` (Laporan rilis), `credentials.md`. Skrip: `$AGENT_WORKFLOW_DIR/bin/release-trace.sh` (usage + exit code di header skrip).
+Baca dulu (jangan disalin ke sini): `$AGENT_WORKFLOW_DIR/skills/_shared/rules.md`, `ticket-platform.md`, `deploy-release.md` (Rilis, Merge PR tiket, urutan dengan klien), `environments.md`, `report-format.md` (Laporan rilis), `credentials.md`. Skrip: `$AGENT_WORKFLOW_DIR/bin/release-trace.sh` (usage + exit code di header skrip).
 
 ```mermaid
 flowchart LR

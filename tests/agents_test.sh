@@ -39,27 +39,28 @@ for n in $INTERNAL; do assert_eq false "$(fm "$REPO/skills/$n/SKILL.md" user-inv
 
 # every reference resolves
 files=$(ls "$REPO"/agents/*.md "$REPO"/skills/*/*.md 2>/dev/null)
-assert_eq "" "$(cat $files | grep -oE '_agent-workflow-shared/' | head -1)" "no Mobile shared path (_agent-workflow-shared)"
-for r in $(cat $files | grep -oE '_backend-workflow-shared/[A-Za-z0-9_-]+\.md' | sort -u); do
-  assert_eq yes "$([ -f "$REPO/skills/_shared/${r#*/}" ] && echo yes || echo no)" "ref $r exists"
+assert_eq "" "$(cat $files | grep -oE '~/\.claude/[a-z]' | head -1)" "no Claude-only paths (~/.claude/...): use \$AGENT_WORKFLOW_DIR"
+assert_eq "" "$(cat $files | grep -oE '_(agent|backend)-workflow-shared' | head -1)" "no old shared-skill path"
+for r in $(cat $files | grep -oE 'AGENT_WORKFLOW_DIR/skills/_shared/[A-Za-z0-9_-]+\.md' | sort -u); do
+  assert_eq yes "$([ -f "$REPO/${r#AGENT_WORKFLOW_DIR/}" ] && echo yes || echo no)" "ref $r exists"
 done
 for r in $(cat $files | grep -oE 'AGENT_WORKFLOW_DIR/bin/[A-Za-z0-9_.-]+' | sort -u); do
   assert_eq yes "$([ -f "$REPO/bin/${r##*/}" ] && echo yes || echo no)" "ref $r exists"
 done
-for r in $(cat $files | grep -oE '~/.claude/agents/[a-z-]+\.md' | sort -u); do
+for r in $(cat $files | grep -oE 'AGENT_WORKFLOW_DIR/agents/[a-z-]+\.md' | sort -u); do
   assert_eq yes "$([ -f "$REPO/agents/${r##*/}" ] && echo yes || echo no)" "ref $r exists"
 done
-for r in $(cat $files | grep -oE '~/.claude/agents/\{[a-z,-]+\}\.md' | sort -u); do
+for r in $(cat $files | grep -oE 'AGENT_WORKFLOW_DIR/agents/\{[a-z,-]+\}\.md' | sort -u); do
   for a in $(echo "$r" | sed -E 's/.*\{(.*)\}.*/\1/' | tr , ' '); do
     assert_eq yes "$([ -f "$REPO/agents/$a.md" ] && echo yes || echo no)" "ref agents/$a.md exists"
   done
 done
-for r in $(cat $files | grep -oE '~/.claude/skills/[a-z-]+/SKILL\.md' | sort -u); do
-  n=${r#"~/.claude/skills/"}; n=${n%/SKILL.md}
+for r in $(cat $files | grep -oE 'AGENT_WORKFLOW_DIR/skills/[a-z-]+/SKILL\.md' | sort -u); do
+  n=${r#AGENT_WORKFLOW_DIR/skills/}; n=${n%/SKILL.md}
   assert_eq yes "$([ -f "$REPO/skills/$n/SKILL.md" ] && echo yes || echo no)" "ref skill $n exists"
 done
 # a skill invoked as `/name` must exist (or be a known external command)
-EXTERNAL="modify-epic-ticket initiate-epic-ticket config"
+EXTERNAL="modify-epic-ticket initiate-epic-ticket config skills"
 for n in $(cat $files | grep -oE '`/[a-z][a-z-]+[ `]' | tr -d '`/ ' | sort -u); do
   case " $EXTERNAL " in *" $n "*) continue;; esac
   assert_eq yes "$([ -d "$REPO/skills/$n" ] && echo yes || echo no)" "skill /$n exists"

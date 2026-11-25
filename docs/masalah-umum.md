@@ -11,6 +11,9 @@
 | `docs-publish.sh put` gagal push | Branch `agent-docs` di `origin` maju dari mesin lain; skrip sudah rebase sekali. Masih gagal → cek akses push ke fork |
 | "Teammate mode mati" | Buka ulang Claude dengan `claude --teammate-mode auto` atau `/config` → Teammate mode → `auto` |
 | "Jalankan dari workspace domain" | `/develop-tiket` dijalankan dari root project. Buka workspace domain di Orca |
+| Skill tidak muncul di Codex/Gemini/Cursor | Cek folder skill agent itu (`docs/pasang.md`): global `~/.agents/skills` (Codex/Gemini) atau `~/.cursor/skills` (Cursor); mulai ulang sesi agent |
+| Hook Codex tidak jalan | Codex hanya menjalankan hook yang sudah di-*trust*: buka Codex dan setujui hook guard |
+| Agent lain menjalankan `--tim` | Hanya Claude Code yang punya teammate; agent lain otomatis solo |
 | Agen bertanya "platform tiket mana?" | Memory project masih none. Pilih GitHub Projects, GitLab board, atau Jira (bingung → board bawaan forge repo); dijawab sekali per project |
 | "belum punya daftar transisi/status" | Board baru: agen menunjukkan status board, kamu pilih Todo, In Progress, Ready To Review (`skills/_shared/ticket-platform.md`) |
 | Guard menolak `gh issue close` / label Done | Disengaja: menutup tiket = Done, hanya manusia |

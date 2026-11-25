@@ -5,7 +5,7 @@ user-invocable: false
 ---
 Masukan: KODE (atau versi rilis), env tujuan (`beta` / `production`), sumber (worktree tiket, atau worktree rilis `<repo>-rilis-vX.Y.Z` di `<sha-rilis>`), perintah deploy env itu (memory project).
 
-Baca dulu: `~/.claude/skills/_backend-workflow-shared/deploy-release.md`, `environments.md`, `rules.md` → Selalu berhenti dan tanya.
+Baca dulu: `$AGENT_WORKFLOW_DIR/skills/_shared/deploy-release.md`, `environments.md`, `rules.md` → Selalu berhenti dan tanya.
 
 ## Langkah
 1. **Gerbang:**

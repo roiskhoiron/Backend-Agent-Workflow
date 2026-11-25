@@ -16,6 +16,7 @@ Semua skrip dipanggil `"$AGENT_WORKFLOW_DIR/bin/<skrip>"`. Skrip yang memegang k
 | `manifest-check.sh` | Bandingkan kode tiket di `git log` dengan daftar tiket | `<base> <head> <KEY>...` | 0 sama; 1 beda; 2 salah pakai |
 | `audit-mode.sh` | Nyalakan/matikan mode hanya-baca `/audit-issue` | `on\|off\|status` | 0 ok; 1 status off; 2 salah pakai |
 | `openapi-check.sh` | Syarat stack: spec dari kode harus OpenAPI 3.x standar dan sesuai contract | `validate <spec>`, `diff <contract> <spec kode> [--paths <regex>]` (JSON/YAML) | 0 valid / sesuai; 1 masalah / beda (didaftar per endpoint); 2 salah pakai / bukan OpenAPI |
+| `hooks/guard.sh` | Pagar keamanan untuk semua agent (input Claude Code/Codex, Gemini CLI, Cursor dikenali otomatis) | dipanggil hook; uji manual: `echo '{"tool_name":"Bash","tool_input":{"command":"<perintah>"}}' \| hooks/guard.sh` | 0 boleh; 2 diblokir (alasan di stderr) |
 | `housekeeping.sh` | Bersihkan container database uji yatim, image dangling, cache build lama | `housekeeping.sh` | 0 ok; 1 ada langkah gagal (di log) |
 
 ## Skill internal Backend

@@ -1,30 +1,39 @@
 # Pasang di komputer lain (Linux / macOS)
 
-1. **Prasyarat:** `git`, `jq`, `python3`, `docker`, `gh` dan/atau `glab`, Claude Code, Orca. Untuk uji contract: `schemathesis` (mis. `uv tool install schemathesis`), verifier Pact project, `oasdiff`. Mode tim: `/config` → Teammate mode → `auto`.
-2. **Konektor claude.ai:** **Atlassian** hanya bila platform tiket = Jira (GitHub/GitLab cukup `gh`/`glab` yang sudah login); **Claude Docs** bila platform dokumentasi `claude-docs`.
-3. **Login CLI:** `gh auth login` / `glab auth login`.
-4. **Pasang dan cek:**
+1. **Prasyarat:** `git`, `jq`, `python3`, `docker`, `gh` dan/atau `glab`, dan minimal satu AI coding agent (Claude Code, Codex CLI, Gemini CLI, Cursor, atau agent lain yang membaca `AGENTS.md`). Orca opsional (workspace + panel teammate di Claude Code). Untuk uji contract: `schemathesis` (mis. `uv tool install schemathesis`), verifier Pact project, `oasdiff`. Mode tim (hanya Claude Code): `/config` → Teammate mode → `auto`.
+2. **Konektor:** Atlassian hanya bila platform tiket = Jira (di agent selain Claude Code: server MCP Atlassian milik agent itu); GitHub/GitLab cukup `gh`/`glab` yang sudah login. Claude Docs hanya bila platform dokumentasi `claude-docs`.
+3. **Pasang dan cek:**
    ```bash
    git clone <url repo ini> ~/Backend-Agent-Workflow
-   cd ~/Backend-Agent-Workflow && ./install.sh && bash tests/run.sh   # harus "ALL PASS"
+   cd ~/Backend-Agent-Workflow
+   ./install.sh                 # menu: agent + cakupan
+   bash tests/run.sh            # harus "ALL PASS"
    ```
+   Tanpa menu: `./install.sh --agent <claude,codex,gemini,cursor,generic> --scope <global|project> [--project DIR] [--force]`.
 
-Yang dibuat `install.sh` (idempoten, symlink: perubahan di repo langsung berlaku):
-| Dari repo | Ke |
-| --- | --- |
-| `skills/<nama>/` | `~/.claude/skills/<nama>` |
-| `skills/_shared/` | `~/.claude/skills/_backend-workflow-shared` |
-| `agents/<peran>.md` | `~/.claude/agents/<peran>.md` |
-| `hooks/guard.sh` | hook PreToolUse di `~/.claude/settings.json` (backup `settings.json.bak-agent-workflow`) |
-| `templates/claude-global.md` | bagian di `~/.claude/CLAUDE.md` (sekali saja) |
+Yang dibuat `install.sh` (symlink ke repo ini: `git pull` di repo = semua agent langsung memakai versi baru; idempoten; file pengaturan dicadangkan sekali sebagai `<file>.bak-backend-workflow`):
 
-> **Bentrok dengan workflow lain:** nama perintah dan agen sama dengan workflow Mobile (`/develop-tiket`, `coder`, …). `install.sh` **menolak** bila `~/.claude/skills/<nama>` atau `~/.claude/agents/<nama>.md` sudah symlink ke repo lain (mis. `mobiledev-agent-workflow`). Satu mesin = satu workflow, kecuali dipaksa dengan `--force` (menimpa yang lama).
+| Agent | Skill | Instruksi (berisi `AGENT_WORKFLOW_DIR`) | Pagar (`hooks/guard.sh`) |
+| --- | --- | --- | --- |
+| `claude` | global `~/.claude/skills/` · project `.claude/skills/`; peran → `.claude/agents/` | `~/.claude/CLAUDE.md` · `CLAUDE.md` | `PreToolUse` di `.claude/settings.json` |
+| `codex` | `~/.agents/skills/` · `.agents/skills/` | `~/.codex/AGENTS.md` · `AGENTS.md` | `PreToolUse` (matcher `Bash`) di `~/.codex/hooks.json` · `.codex/hooks.json`; **trust dulu di Codex** |
+| `gemini` | `~/.agents/skills/` · `.agents/skills/` | `~/.gemini/GEMINI.md` · `GEMINI.md` | `BeforeTool` (`run_shell_command\|write_file\|replace`) di `.gemini/settings.json` |
+| `cursor` | `~/.cursor/skills/` · `.cursor/skills/` | project: `AGENTS.md`; global: tambahkan sendiri di Cursor Settings → Rules | `beforeShellExecution` di `.cursor/hooks.json` |
+| `generic` | `~/.agents/skills/` · `.agents/skills/` | project: `AGENTS.md`; global: tidak ada lokasi standar | tidak ada (hanya aturan) |
+
+- Instruksi ditulis di antara penanda `<!-- backend-agent-workflow:start -->` … `end`; isi lain file itu tidak disentuh, dan pemasangan ulang hanya mengganti blok itu.
+- Satu `guard.sh` untuk semua agent: ia mengenali format input Claude Code/Codex, Gemini CLI, dan Cursor, dan semuanya memblokir dengan exit code 2.
+- Agent selain Claude Code tidak punya teammate: `--tim` = `--solo`, file `agents/<peran>.md` dipakai sebagai daftar tugas per peran.
+- Konvensi path agent lain (Codex, Gemini, Cursor) diambil dari dokumentasi resmi per November 2026; Gemini CLI kini digantikan Antigravity CLI, sehingga jalurnya bisa berubah.
+
+> **Bentrok dengan workflow lain:** nama perintah dan agen sama dengan workflow Mobile (`/develop-tiket`, `coder`, …). `install.sh` **menolak** bila folder skill/agen sudah symlink ke repo lain (mis. `mobiledev-agent-workflow`). Satu agent + cakupan = satu workflow, kecuali dipaksa dengan `--force`.
 
 ## Per mesin (tidak ikut repo)
 | File | Isi | Siapa |
 | --- | --- | --- |
 | `~/.agent-workflow/prod-hosts.txt` | host database production + API live, satu per baris | kamu ([Pagar keamanan](pagar-keamanan.md)) |
-| `~/.agent-workflow/board-transitions.json` | id transisi Todo / In Progress / Ready To Review per project | agen bertanya saat pertama jalan |
+| `~/.agent-workflow/board-transitions.json` | status Todo / In Progress / Ready To Review per board (GitHub/GitLab/Jira) | agen bertanya saat pertama jalan |
+| `~/.agent-workflow/projects/<repo>/memory.md` | memory project untuk agent selain Claude Code | agen |
 | `~/.agent-workflow/build-roots.txt` (opsional) | folder project tempat agen boleh menghapus artefak build | kamu |
 
 ## Per project

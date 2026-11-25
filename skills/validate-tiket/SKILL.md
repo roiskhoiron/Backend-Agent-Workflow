@@ -5,7 +5,7 @@ argument-hint: KODE-TIKET... [--solo|--tim]
 ---
 Validasi satu atau lebih tiket Backend (`$ARGUMENTS`). Peranmu = **Validator**; di mode tim kamu juga **SPV** (orchestrator). Tidak menulis kode produk, tidak memindah tiket ke Done.
 
-Baca dulu (jangan disalin ke sini): `~/.claude/skills/_backend-workflow-shared/rules.md`, `ticket-platform.md`, `environments.md`, `credentials.md`, `report-format.md`, `deploy-release.md`, dan `~/.claude/agents/validator.md`; mode tim juga `~/.claude/agents/{pdm,contract-runner,hoe,pjm,eskalasi}.md`. Skrip: `$AGENT_WORKFLOW_DIR/bin/<skrip>`.
+Baca dulu (jangan disalin ke sini): `$AGENT_WORKFLOW_DIR/skills/_shared/rules.md`, `ticket-platform.md`, `environments.md`, `credentials.md`, `report-format.md`, `deploy-release.md`, dan `$AGENT_WORKFLOW_DIR/agents/validator.md`; mode tim juga `$AGENT_WORKFLOW_DIR/agents/{pdm,contract-runner,hoe,pjm,eskalasi}.md`. Skrip: `$AGENT_WORKFLOW_DIR/bin/<skrip>`.
 
 **Mode:** sesi ini bertindak langsung sebagai Validator/SPV (bukan subagen `validator`), supaya akses platform tiket dan dokumentasi tetap di satu tempat. Tiket berurutan.
 - `--solo` (atau tanpa flag untuk tiket kecil/jelas, satu endpoint, tanpa migrasi): sesi ini mengerjakan semua langkah sendiri.
@@ -37,7 +37,7 @@ flowchart LR
    | **Implementasi meleset** (requirement tetap) | **Layak**; daftar revisi masuk "Yang ditolak" |
    | **Requirement/contract berubah atau kurang** | Cek ulang terhadap dokumen terbaru; contract perlu diubah → **Tidak layak** sampai `/modify-epic-ticket` dijalankan di workflow produksi tiket; tidak jelas → tanya user/PM |
    Jejak tanpa komentar penolakan → tanya user apa yang ditolak. PR/MR sudah **merged** → pengerjaan lewat branch baru `<jenis>/<KODE>-r<n>` + Draft PR/MR baru.
-4. **Bug:** tentukan versi dari tiket (kosong → versi yang jalan di dev/beta, `deploy-release.md`). Reproduksi dengan skill `/reproduce-request` (`~/.claude/skills/reproduce-request/SKILL.md`): request ke dev (atau beta/live hanya method aman), log, data; bukti tekstual tiap langkah.
+4. **Bug:** tentukan versi dari tiket (kosong → versi yang jalan di dev/beta, `deploy-release.md`). Reproduksi dengan skill `/reproduce-request` (`$AGENT_WORKFLOW_DIR/skills/reproduce-request/SKILL.md`): request ke dev (atau beta/live hanya method aman), log, data; bukti tekstual tiap langkah.
    **Fitur:** cek requirement lengkap; **contract** ada dan cukup (endpoint, field, kode galat, auth, batas data; versi contract disetujui); **spec dari kode**: project bisa mengekspor spec OpenAPI 3.x dan lolos `openapi-check.sh validate` (belum → **Layak dengan catatan**: tiket chore generator dulu); **data**: tabel yang disentuh, perlu migrasi atau tidak, migrasi merusak data atau tidak (perkiraan); **klien**: siapa memakai endpoint ini, versi klien lama yang terdampak (`/check-compat` versi ringan: baca spec + kode, tanpa branch).
    **Tiket terkait (solo dan tim):** selain link yang ada, cari tiket Todo/In Progress yang tidak di-link tapi menyentuh endpoint/tabel/modul yang sama (pencarian tiket (`ticket-platform.md` → Cari tiket terkait)), termasuk tiket klien yang menunggu endpoint ini; mode tim dikerjakan PjM. Link antar tiket tidak dibuat sendiri: cukup disarankan di komentar.
    **Aturan keputusan:**
@@ -63,7 +63,7 @@ flowchart LR
      | HoE | `claude-opus-5-5` | selalu: blueprint, skema data + kebutuhan migrasi, kompatibilitas klien, reproduksi bug logika/API |
      | PjM | `claude-sonnet-5-5` | selalu: ketergantungan, tiket klien yang menunggu |
      | Spesialis eskalasi | `claude-fable-5-2` (jangan isi `model`) | hanya saat pemicu; dihentikan setelah membalas |
-     Brief: KODE, ringkasan tiket + AC, endpoint, lokasi dokumen + ref, repo + ref kode, base URL dev, akun uji yang dijatahkan (bug), folder `${TMPDIR:-/tmp}/validate/<KODE>/`. Prompt: "Ikuti `~/.claude/agents/<peran>.md`".
+     Brief: KODE, ringkasan tiket + AC, endpoint, lokasi dokumen + ref, repo + ref kode, base URL dev, akun uji yang dijatahkan (bug), folder `${TMPDIR:-/tmp}/validate/<KODE>/`. Prompt: "Ikuti `$AGENT_WORKFLOW_DIR/agents/<peran>.md`".
    - **Spesialis eskalasi (`eskalasi`) hanya bila:** bug gagal direproduksi HoE setelah satu putaran; temuan HoE ambigu (bug atau disengaja); tiket berlabel high-risk (pembayaran, autentikasi, perubahan skema data); konflik antar-agen yang tidak bisa kamu selesaikan. Sebut pemicunya di brief.
    - Gabungkan semua `${TMPDIR:-/tmp}/validate/<KODE>/*.md` jadi satu laporan (`report-format.md` → bagian Bisnis / Teknis / Ketergantungan). Hentikan teammate yang tugasnya habis; akhir sesi → hentikan semua dan pastikan kunci dilepas.
 10. **Ringkasan akhir** (setelah semua tiket):

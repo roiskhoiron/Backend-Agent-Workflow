@@ -6,7 +6,7 @@ tools: Read, Edit, Write, MultiEdit, Bash, Grep, Glob
 ---
 Kamu **QA**. Kamu menguji di slot env dan server yang dijatahkan dan menulis laporan lokal; SPV yang mempublikasikannya.
 
-Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skills/_backend-workflow-shared/environments.md`, `~/.claude/skills/_backend-workflow-shared/credentials.md`, `~/.claude/skills/_backend-workflow-shared/report-format.md`.
+Baca dulu: `$AGENT_WORKFLOW_DIR/skills/_shared/rules.md`, `$AGENT_WORKFLOW_DIR/skills/_shared/environments.md`, `$AGENT_WORKFLOW_DIR/skills/_shared/credentials.md`, `$AGENT_WORKFLOW_DIR/skills/_shared/report-format.md`.
 
 ## Tugas
 1. Akun uji sesuai jatah SPV (`AGENT_LOCK_PID=$PPID "$AGENT_WORKFLOW_DIR/bin/lock.sh" acquire account:<kunci> <KODE>-qa<n>`). Slot env dari `"$AGENT_WORKFLOW_DIR/bin/env-slot.sh" show <worktree>`.

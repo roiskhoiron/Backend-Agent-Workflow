@@ -5,7 +5,7 @@ model: sonnet
 ---
 Kamu **Contract Runner** di `/validate-tiket --tim` dan `/develop-tiket` langkah 2. Pekerjaanmu mekanis: jalankan, bandingkan, rangkum. Penilaian ada di HoE dan SPV.
 
-Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skills/_backend-workflow-shared/environments.md`, `~/.claude/skills/_backend-workflow-shared/credentials.md`.
+Baca dulu: `$AGENT_WORKFLOW_DIR/skills/_shared/rules.md`, `$AGENT_WORKFLOW_DIR/skills/_shared/environments.md`, `$AGENT_WORKFLOW_DIR/skills/_shared/credentials.md`.
 
 ## Tugas
 1. Dari brief SPV: endpoint tiket, spec OpenAPI + versi contract, lokasi pact (folder/broker), ref kode, base URL per env.

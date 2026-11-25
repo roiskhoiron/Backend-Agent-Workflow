@@ -503,6 +503,18 @@ check_board_cli() { # tool args...
 }
 
 input=$(cat)
+# One guard for several agents: normalise their hook input to the Claude Code shape
+# {tool_name, tool_input:{command|file_path}, cwd}. Codex PreToolUse already uses it (tool_name "Bash").
+#   Cursor beforeShellExecution: {command, cwd, workspace_roots}      -> Bash
+#   Gemini BeforeTool: run_shell_command {command, directory}, write_file/replace {file_path} -> Bash / Write
+# All of them block on exit 2 with the reason on stderr.
+input=$(printf '%s' "$input" | "$JQ" -c '
+  if (.tool_name == null) and (.command != null) then
+    {tool_name: "Bash", tool_input: {command: .command}, cwd: (.cwd // (.workspace_roots // [])[0]), session_id: (.conversation_id // .session_id)}
+  elif .tool_name == "run_shell_command" then
+    .tool_name = "Bash" | (if (.tool_input.directory // "") != "" then .cwd = (if (.tool_input.directory|startswith("/")) then .tool_input.directory else ((.cwd // ".") + "/" + .tool_input.directory) end) else . end)
+  elif (.tool_name == "write_file" or .tool_name == "replace") then .tool_name = "Write"
+  else . end' 2>/dev/null) || exit 0
 tool=$(printf '%s' "$input" | "$JQ" -r '.tool_name // empty' 2>/dev/null) || exit 0
 cwd=$(printf '%s' "$input" | "$JQ" -r '.cwd // empty' 2>/dev/null)
 [ -n "$cwd" ] || cwd=$PWD

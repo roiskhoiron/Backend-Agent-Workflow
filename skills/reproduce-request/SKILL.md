@@ -5,7 +5,7 @@ user-invocable: false
 ---
 Reproduksi bug Backend **tanpa layar**: request → response → log → data. Masukan dari pemanggil: KODE (atau slug audit), langkah reproduksi dari tiket, versi/ref yang dilaporkan, folder kerja, akun uji yang dijatahkan.
 
-Baca dulu: `~/.claude/skills/_backend-workflow-shared/environments.md`, `credentials.md`, `report-format.md` (→ Bukti tekstual).
+Baca dulu: `$AGENT_WORKFLOW_DIR/skills/_shared/environments.md`, `credentials.md`, `report-format.md` (→ Bukti tekstual).
 
 ## Langkah
 1. **Pilih tempat reproduksi** (urutan):

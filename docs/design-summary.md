@@ -19,6 +19,7 @@ Backend memakai kerangka Mobile (empat perintah + `/branch-manager`, tim agen, w
 | Bukti tekstual (`http-evidence.sh`) pengganti screenshot bertanda | Tidak ada layar; rahasia otomatis disamarkan |
 | Stack bebas, tetapi wajib membangkitkan spec OpenAPI 3.x dari kode (anotasi Swagger/generator); diperiksa `openapi-check.sh` | Keputusan user 2026-11-25. Contract tetap sumber kebenaran; spec dari kode = bukti kode memenuhinya. Swagger 2.0 ditolak |
 | Platform tiket tidak dipilihkan: default none, agen bertanya di awal; pilihan GitHub Issues + Projects, GitLab issue board, Jira (`ticket-platform.md`) | Keputusan user 2026-11-25. Sejalan dengan `tracker.type` di workflow produksi tiket; guard menjaga Done di ketiganya, dan PR memakai `Refs #n`, bukan `Closes #n` |
+| Bisa dipasang ke Claude Code, Codex CLI, Gemini CLI, Cursor, atau agent umum (`AGENTS.md`), cakupan global/project | Keputusan user 2026-11-25. Skill memakai format `SKILL.md` yang kini dibaca agent-agent tersebut; path di skill netral (`$AGENT_WORKFLOW_DIR`); satu `guard.sh` dengan adaptor input per agent. Mode tim tetap khusus Claude Code |
 | Skrip jalan di Linux dan macOS | Developer Backend sering memakai Linux |
 
 ## Masih terbuka

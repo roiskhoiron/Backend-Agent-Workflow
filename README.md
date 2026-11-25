@@ -1,6 +1,8 @@
 # Backend Agent Workflow
 
-Tim agen AI (Claude Code + Orca) yang mengerjakan tiket di proyek **Backend**: mengecek tiket, menulis migrasi database dan kode, menguji API, deploy ke server uji, membuat PR/MR, sampai menyiapkan rilis.
+Tim agen AI yang mengerjakan tiket di proyek **Backend**: mengecek tiket, menulis migrasi database dan kode, menguji API, deploy ke server uji, membuat PR/MR, sampai menyiapkan rilis.
+
+Bisa dipasang ke **Claude Code, Codex CLI, Gemini CLI, Cursor**, atau agent lain yang membaca `AGENTS.md`, untuk satu project atau semua project ([pilih agent](#pasang-5-menit)).
 
 Bayangkan sebuah tim kecil: ada **mandor** (SPV) yang membagi tugas, **programmer** yang menulis kode, **reviewer** yang memeriksa, **QA** yang menguji, dan **petugas rilis** yang deploy dan membuat PR. Kamu cukup mengetik satu perintah; tim agen bekerja, lalu bertanya kepadamu hanya untuk keputusan penting.
 
@@ -67,12 +69,38 @@ Ada beda → kode diperbaiki, bukan contract.
 ```bash
 git clone https://github.com/roiskhoiron/Backend-Agent-Workflow.git
 cd Backend-Agent-Workflow
-./install.sh          # tautkan skill + agen ke ~/.claude dan pasang pagar keamanan
+./install.sh          # menu: pilih AI coding agent + cakupan (global / project)
 bash tests/run.sh     # pastikan semua tes lulus (ALL PASS)
 ```
 
-- `install.sh` aman dijalankan berulang. Pengaturan lama dicadangkan ke `~/.claude/settings.json.bak-backend-workflow`.
-- **Sudah memasang workflow Mobile di komputer yang sama?** Nama perintahnya sama (`/develop-tiket`, dst.), jadi `install.sh` berhenti dan memberi tahu. Satu komputer = satu workflow; pakai `./install.sh --force` bila memang ingin beralih ke Backend.
+`./install.sh` tanpa argumen menanyakan dua hal:
+
+**1. AI coding agent yang dipakai** (boleh lebih dari satu)
+
+| Agent | Skill dipanggil dengan | Pagar keamanan | Mode `--tim` |
+|---|---|---|---|
+| Claude Code | `/develop-tiket` | aktif (hook) | ya, teammate paralel |
+| Codex CLI | `$develop-tiket` atau `/skills` | aktif setelah kamu *trust* hook-nya | solo |
+| Gemini CLI | sebut tugasnya, skill dipilih otomatis | aktif (hook) | solo |
+| Cursor | `/develop-tiket` | aktif (hook) | solo |
+| Agent lain (`AGENTS.md`: opencode, Copilot, Windsurf, …) | minta agent membaca skill-nya | **tidak ada hook**, hanya aturan | solo |
+
+**2. Cakupan**
+
+| Cakupan | Artinya | Cocok bila |
+|---|---|---|
+| `global` | berlaku di semua project di komputer ini | kamu sendiri yang memakai |
+| `project` | hanya di satu folder project (`.claude/`, `.agents/`, `AGENTS.md`, …) | ingin mencoba dulu, atau tiap project beda agent |
+
+Tanpa menu (mis. di skrip):
+```bash
+./install.sh --agent claude --scope global                              # sama dengan versi lama
+./install.sh --agent codex,cursor --scope project --project ~/kode/api   # dua agent, satu project
+```
+
+- Aman dijalankan berulang; file pengaturan lama dicadangkan sekali sebagai `<file>.bak-backend-workflow`.
+- **Sudah memasang workflow Mobile?** Nama perintahnya sama, jadi `install.sh` berhenti dan memberi tahu. Pakai `--force` bila memang ingin beralih ke Backend.
+- Selain Claude Code, `--tim` dijalankan sebagai `--solo`: satu sesi memainkan peran Coder → Reviewer → QA → Release berurutan.
 
 Detail: [docs/pasang.md](docs/pasang.md).
 
@@ -202,7 +230,7 @@ Catatan jujur: pagar hanya membaca **teks perintah**. Alamat production yang ter
 | `agents/` | Peran agen (model, tugas, larangan) |
 | `bin/` | Skrip pembantu: `lock.sh`, `env-slot.sh`, `test-db.sh`, `migration-lint.sh`, `migration-check.sh`, `http-evidence.sh`, `openapi-check.sh`, `docs-publish.sh`, `release-trace.sh`, `manifest-check.sh`, `audit-mode.sh`, `housekeeping.sh` |
 | `hooks/guard.sh` | Pagar keamanan |
-| `templates/` | `qa.env.example` (akun uji), bagian `CLAUDE.md` global |
+| `templates/` | `qa.env.example` (akun uji), `agent-instructions.md` (blok instruksi yang dipasang ke CLAUDE.md / AGENTS.md / GEMINI.md) |
 | `tests/` | Tes otomatis: `bash tests/run.sh` |
 | `docs/` | Panduan lanjutan |
 

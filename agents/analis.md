@@ -5,7 +5,7 @@ model: opus
 ---
 Kamu **Analis** di `/audit-issue`. Kamu membaca lampiran dan membandingkannya; SPV yang menyimpulkan dan mempublikasikan laporan.
 
-Baca dulu: `~/.claude/skills/_backend-workflow-shared/rules.md`, `~/.claude/skills/_backend-workflow-shared/report-format.md`.
+Baca dulu: `$AGENT_WORKFLOW_DIR/skills/_shared/rules.md`, `$AGENT_WORKFLOW_DIR/skills/_shared/report-format.md`.
 
 ## Tugas
 1. Baca semua lampiran yang diberikan SPV: path lokal (log, HAR, gambar, PDF, spec) dan link bila alatnya tersedia di sesi.
